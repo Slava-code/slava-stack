@@ -1,0 +1,437 @@
+# project-kb — Frontmatter Schema
+#
+# Source of truth for what each file type must contain. Drives:
+#   - scripts/kb-lint.py (pre-commit frontmatter validation)
+#   - schema/templates/*.md (ready-to-copy stubs; kept in sync with this file)
+#
+# Editing rules:
+#   - Change schema → update dependent templates in the same commit
+#   - Commit prefix: `schema: <change>`
+#   - Lint failures after a schema change mean the schema moved; either fix the
+#     content OR revise the schema (don't bypass --no-verify)
+
+# ───────────────────────────────────────────────────────────────
+# Enumerations — referenced by type definitions below
+# ───────────────────────────────────────────────────────────────
+
+enums:
+  product:
+    # Rename these to your project's actual tracks. Single-track projects can collapse to one.
+    - track-a
+    - track-b
+    - shared
+  strategic_thread:
+    # Customize for your project's cross-cutting initiatives. Multi-value.
+    - oss
+    - gtm
+    - fundraising
+    - partnerships
+    - hiring
+  confidence:
+    - high
+    - medium
+    - low
+    - uncertain
+  status_general:
+    - raw
+    - reviewed
+    - incorporated
+    - superseded
+    - archived
+  status_advisor:
+    - prospect
+    - contacted
+    - engaged
+    - committed
+    - declined
+  status_advisor_event:
+    - drafted
+    - sent
+    - scheduled
+    - completed
+    - cancelled
+    - reviewed
+  status_todo:
+    - pending
+    - completed
+    - cancelled
+  status_team:
+    - active
+    - inactive
+  status_inbox:
+    - inbox
+    - processed
+  status_study:
+    - ongoing
+    - paused
+    - complete
+  status_lead:
+    - new
+    - contacted
+    - demo-booked
+    - demo-completed
+    - converted
+    - dead
+  decision_status:
+    - considered
+    - adopted
+    - rejected
+    - borrowed-partial
+  persona:
+    # Customize for your customer/user personas.
+    - decision-maker
+    - end-user
+    - influencer
+    - advisor
+    - other
+  stage:
+    # Customer/prospect funnel stage. Adjust to your sales/discovery model.
+    - discovery
+    - validation
+    - pilot
+    - paying
+  inbox_source_kind:
+    - url
+    - email
+    - note
+    - x-post
+    - linkedin-post
+    - research-topic
+    - screenshot
+  captured_from:
+    - mobile
+    - desktop
+    - claude-chat
+    - terminal
+    - manual
+  tool_kind:
+    - web-app
+    - gpt
+    - cli
+    - api
+    - template
+    - reference-doc
+    - gist
+  traction_scope:
+    - corpus
+    - pipeline
+    - revenue
+    - team
+    - qualitative
+  run_kind:
+    - audit
+    - synthesis
+    - migration
+    - lock
+  advisor_event_kind:
+    - research-analysis
+    - email-drafts
+    - email-sent
+    - meeting-notes
+    - follow-up
+
+# ───────────────────────────────────────────────────────────────
+# Files exempt from frontmatter validation
+# (navigational / meta files; lint skips these patterns)
+# ───────────────────────────────────────────────────────────────
+
+lint_exempt_patterns:
+  # navigational / framework docs (no frontmatter — handled directly)
+  - "CLAUDE.md"
+  - "CONVENTIONS.md"
+  - "AGENT-GUIDE.md"
+  - "GLOSSARY.md"
+  - "LIMITS.md"
+  - "READING-GUIDES.md"
+  - "USER-MANUAL.md"
+  - "README.md"       # repo-root README; folder READMEs validate as type: folder
+  - "SOUL.md"         # gitignored local user config
+  # auto-generated listings (written by rebuild-indexes.py)
+  - "**/INDEX.md"
+  # dirs/files not content (generator + lint both skip)
+  - "schema"
+  - "schema/**"
+  - "scripts"
+  - "scripts/**"
+  - ".claude"
+  - ".claude/**"
+  - "plugins"
+  - "plugins/**"
+  - "inbox/INDEX.md"
+
+# ───────────────────────────────────────────────────────────────
+# Global rules for the `description:` frontmatter field
+# Optional on every type (migration-friendly); when present, lint
+# enforces these rules. Descriptions are written as rules / stable
+# identifiers, not summaries — so they do not drift when file
+# contents change.
+# ───────────────────────────────────────────────────────────────
+
+description_rules:
+  max_length: 120
+  style_forbid_substrings:
+    - "[["      # no wikilinks
+    - "](http"  # no markdown links
+
+# ───────────────────────────────────────────────────────────────
+# Type definitions — what each content file must contain
+# ───────────────────────────────────────────────────────────────
+
+types:
+
+  source:
+    folder: sources/
+    required: [title, type, product, source, date_found, tags, status]
+    status_values: status_general
+    body_required_sections: []
+
+  comparison:
+    folder: comparisons/
+    required: [title, type, product, decision_status, confidence, date_found, status]
+    extra_fields:
+      decision_status: {enum: decision_status}
+    status_values: status_general
+    body_required_sections: [Decision]
+
+  synthesis:
+    folder: synthesis/
+    required: [title, type, product, confidence, date_found, status]
+    optional: [supersedes, strategic-thread]
+    status_values: status_general
+    body_required_sections: [Counter-arguments, Data gaps]
+
+  decision:
+    folder: decisions/
+    required: [title, type, product, confidence, date_found, status]
+    optional: [supersedes, strategic-thread]
+    status_values: status_general
+    body_required_sections: [Why, "What we're giving up"]
+
+  question:
+    folder: questions/
+    required: [title, type, product, status, priority]
+    extra_fields:
+      priority: {enum: [high, medium, low]}
+    status_values: status_general
+    body_required_sections: []
+
+  strategy:
+    folder: strategy/
+    required: [title, type, product, confidence, date_found, status]
+    optional: [supersedes, strategic-thread]
+    status_values: status_general
+    body_required_sections: []
+
+  brainstorm:
+    folder: brainstorming/
+    required: [title, type, product, date_found, status]
+    optional: [supersedes, convergence]
+    status_values: status_general
+    body_required_sections: []
+    # `convergence` is a free-form list of cross-brainstorm theme tags
+    # (e.g. [eval-harness-build, graph-db-threshold]). scripts/kb-convergence-scan.py
+    # tallies tags across brainstorms; when a tag hits ≥3 occurrences it is
+    # surfaced by /kb-audit as a promotion candidate (→ questions/ or
+    # research-dispatches/). Emit a tag when a brainstorm notes "this is the
+    # Nth time X has surfaced" — see schema/processor-brief.md §4.
+
+  research-dispatch:
+    folder: research-dispatches/
+    required: [title, type, product, date_found, status, priority]
+    extra_fields:
+      priority: {enum: [high, medium, low]}
+    status_values: status_general
+    body_required_sections: []
+
+  experiment:
+    folder: experiments/
+    required: [title, type, product, date_found, status]
+    status_values: status_general
+    body_required_sections: []
+
+  benchmark-spec:
+    folder: benchmarks/
+    required: [title, type, product, date_found, status]
+    optional: [supersedes]
+    status_values: status_general
+    body_required_sections: []
+
+  interview:
+    folder: discovery/
+    required: [title, type, product, persona, stage, firm, confidence, date_found, status]
+    optional: [redacted]
+    extra_fields:
+      persona: {enum: persona}
+      stage: {enum: stage}
+      firm: {type: string}
+      redacted: {type: boolean}
+    status_values: status_general
+    body_required_sections: []
+
+  lead:
+    # Pre-interview prospect from an inbound channel (website demo form, warm referral, etc.).
+    # Tracks the outreach loop before the first call. On demo completion, either promote
+    # to an `interview` file (full quote capture) or update `status: demo-completed` here
+    # and cite into a related interview file.
+    folder: discovery/
+    required: [title, type, product, status, date_found, email]
+    optional: [name, firm, persona, stage, tags, redacted, description]
+    extra_fields:
+      email: {type: string}
+      name: {type: string}
+      firm: {type: string}
+      persona: {enum: persona}
+      stage: {enum: stage}
+      redacted: {type: boolean}
+    status_values: status_lead
+    body_required_sections: []
+
+  advisor:
+    folder: advisors/
+    file_pattern: "*/README.md"
+    required: [title, type, tier, institution, status, confidence, product, tags]
+    extra_fields:
+      tier: {enum: [1, 2, 3]}
+      institution: {type: string}
+    status_values: status_advisor
+    body_required_sections: []
+
+  advisor-event:
+    folder: advisors/
+    file_pattern: "*/[0-9]*.md"
+    required: [type, event_kind, advisor, date_found, status]
+    optional: [sent_at, source, tags, product]
+    extra_fields:
+      event_kind: {enum: advisor_event_kind}
+      advisor: {type: string}
+    status_values: status_advisor_event
+    body_required_sections: []
+
+  advisor-roster:
+    folder: advisors/
+    required: [title, type, institution, date_found, product, tags, status]
+    extra_fields:
+      institution: {type: string}
+    status_values: status_general
+    body_required_sections: []
+
+  team-member:
+    folder: team/
+    file_pattern: "*/README.md"
+    required: [title, type, role, status, product, tags]
+    extra_fields:
+      role: {type: string}
+    status_values: status_team
+    body_required_sections: []
+
+  project-profile:
+    # Per-team-member project deep-dives at team/<name>/projects/<slug>.md.
+    # Used for hackathons, side projects, prior-work portfolios that future
+    # agents read when an application question, intro, or advisor outreach
+    # turns on a specific project a team member has shipped. Minimal
+    # required fields — content varies a lot across projects.
+    folder: team/
+    file_pattern: "*/projects/*.md"
+    required: [type, title, description]
+    optional: [project, repo, event, team, date, analyzed_at, analyzed_by, status, tags]
+    extra_fields:
+      project: {type: string}
+      repo: {type: string}
+      event: {type: string}
+      team: {type: list}
+      date: {type: date}
+      analyzed_at: {type: date}
+      analyzed_by: {type: string}
+    body_required_sections: []
+
+  todo:
+    folder: todos/
+    required: [type, title, deadline, status, priority, created_at]
+    optional: [related, completed_at, kind]
+    extra_fields:
+      deadline: {type: date}
+      priority: {enum: [high, medium, low]}
+      created_at: {type: date}
+      completed_at: {type: date_or_null}
+      related: {type: list}
+      kind: {enum: [task, event, meeting]}
+    status_values: status_todo
+    body_required_sections: []
+
+  inbox-drop:
+    folder: inbox/
+    required: [type, source_kind, captured_at, captured_from, status]
+    optional: [source_url, tags]
+    extra_fields:
+      source_kind: {enum: inbox_source_kind}
+      captured_at: {type: datetime}
+      captured_from: {enum: captured_from}
+      source_url: {type: string}
+    status_values: status_inbox
+    body_required_sections: []
+
+  tool:
+    # Bookmark-class entry — utility URLs, GPTs, web tools, reference docs the user
+    # wants to find/reuse later. Distinct from `source:` which requires a factual
+    # digest. Lightweight: body capped ~15 lines, no required sections. The
+    # `description:` field IS the entry — anti-thinning rule does not apply.
+    folder: tools/
+    required: [title, type, product, url, kind, date_found, tags, status]
+    extra_fields:
+      url: {type: string}
+      kind: {enum: tool_kind}
+    status_values: status_general
+    body_required_sections: []
+
+  traction-snapshot:
+    folder: traction/
+    required: [type, scope, date_found, status]
+    extra_fields:
+      scope: {enum: traction_scope}
+    status_values: status_general
+    body_required_sections: []
+
+  run-log:
+    folder: runs/
+    required: [type, kind, date_found]
+    extra_fields:
+      kind: {enum: run_kind}
+    body_required_sections: []
+
+  study-log:
+    # Per-source or per-concept study log. Files live at one of:
+    #   - study-sessions/<source-filename>.md  (source study logs; filename mirrors source exactly)
+    #   - concepts/<slug>/study-log.md         (concept study logs)
+    # Append-only: new checkpoints as H2 headers at the bottom. Written only by /study.
+    # Exactly one of `source:` / `concept:` must be set (frontmatter convention;
+    # not linter-enforced). `last_checkpoint:` tracks the most recent append.
+    folder: "study-sessions/ OR concepts/*/"
+    required: [title, type, product, status, date_found, last_checkpoint]
+    optional: [source, concept, brainstorm, tags, supersedes]
+    extra_fields:
+      last_checkpoint: {type: date}
+      source: {type: string}
+      concept: {type: string}
+      brainstorm: {type: string}
+    status_values: status_study
+    body_required_sections: []
+
+  concept:
+    # Concept folder README — research digest for a meta-topic spanning multiple
+    # sources (e.g. "graph-databases", "retrieval-evaluation"). Lives at
+    # concepts/<slug>/README.md. Sibling `study-log.md` uses type: study-log.
+    folder: concepts/
+    file_pattern: "*/README.md"
+    required: [title, type, product, date_found, tags, status]
+    status_values: status_general
+    body_required_sections: []
+
+  folder:
+    # Folder-meta README — the hand-authored purpose/rules doc at the root
+    # of a category folder (e.g. sources/README.md). Parent INDEX.md lists
+    # this folder using the `description:` field from its frontmatter.
+    # Subject folders (advisors/<name>/README.md, team/<name>/README.md)
+    # use type: advisor / type: team-member instead — not this type.
+    required: [type, description]
+    optional: [product, tags]
+    body_required_sections: []

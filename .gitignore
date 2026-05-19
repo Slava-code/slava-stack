@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+
+# Single-writer lock — session-local, not versioned
+runs/.lock
+
+# Personality file — local, personal, not versioned
+SOUL.md
+
+# Per-team-member private content (resumes, gov-id docs, anything not for the repo)
+# Files are local-only, but agents reading the team profile can still grep them.
+team/*/private/

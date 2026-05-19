@@ -1,0 +1,42 @@
+#!/bin/bash
+# post-commit — enforce CONVENTIONS §"Commit convention":
+# "Always `git push` after every commit. No local-only buffering."
+#
+# Runs after every commit on this repo. Auto-pushes to the tracked
+# upstream so agents + humans can't accumulate unpushed state through
+# forgetfulness or context drift.
+#
+# Installed via scripts/install-hooks.sh (copies into .git/hooks/).
+# git hooks are per-clone; re-run install-hooks.sh on every machine.
+
+set -u
+
+branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+
+# If this branch has no upstream yet (e.g. brand-new branch never pushed),
+# skip gracefully — user needs `git push -u origin <branch>` first.
+if ! git rev-parse --verify '@{u}' >/dev/null 2>&1; then
+    cat >&2 <<EOF
+post-commit: branch '$branch' has no upstream; push skipped.
+  Set one with:  git push -u origin $branch
+  Per CONVENTIONS.md: no local-only buffering.
+EOF
+    exit 0
+fi
+
+# Do the push. Output goes to the user's terminal so success is visible
+# and failures don't hide.
+if git push; then
+    exit 0
+fi
+
+# Push failed — commit is already recorded locally. Surface loudly so
+# the user knows remote is behind.
+cat >&2 <<EOF
+
+post-commit: PUSH FAILED — commit recorded locally, origin NOT updated.
+  Run \`git push\` manually once the underlying issue is fixed (auth, network,
+  non-fast-forward, etc.). Per CONVENTIONS.md §"Commit convention":
+  "Always \`git push\` after every commit. No local-only buffering."
+EOF
+exit 1

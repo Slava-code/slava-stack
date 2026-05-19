@@ -1,0 +1,68 @@
+#!/bin/bash
+# project-kb pre-commit hook — runs kb-lint.py on staged *.md files.
+# Installed from scripts/hooks/pre-commit into .git/hooks/pre-commit by
+# scripts/install-hooks.sh.
+#
+# Note: git hooks run in a stripped env on macOS — `python3` may resolve to
+# /usr/bin/python3 (Apple's system Python, no PyYAML) even when your
+# interactive shell's python3 is different. This script probes common
+# Python install locations for one that has PyYAML.
+
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+staged_md=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.md$' || true)
+
+# no markdown changes → no lint work, but still verify index freshness below
+
+find_py_with_yaml() {
+    for py in python3 \
+              "$HOME/opt/anaconda3/bin/python3" \
+              /opt/anaconda3/bin/python3 \
+              /opt/homebrew/bin/python3 \
+              /opt/homebrew/bin/python3.13 \
+              /opt/homebrew/bin/python3.12 \
+              /opt/homebrew/bin/python3.11 \
+              /usr/local/bin/python3 \
+              /Library/Frameworks/Python.framework/Versions/3.13/bin/python3 \
+              /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 \
+              /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 \
+              /Library/Frameworks/Python.framework/Versions/3.10/bin/python3; do
+        if command -v "$py" >/dev/null 2>&1 && "$py" -c "import yaml" >/dev/null 2>&1; then
+            echo "$py"
+            return 0
+        fi
+    done
+    return 1
+}
+
+py=$(find_py_with_yaml) || {
+    cat >&2 <<EOF
+kb-lint: no python3 with PyYAML found on this machine.
+  Install for your default python3:   python3 -m pip install pyyaml
+  For the anaconda base interpreter:  \$HOME/opt/anaconda3/bin/python3 -m pip install pyyaml
+Hooks then work automatically.
+EOF
+    exit 2
+}
+
+if [ -n "$staged_md" ]; then
+    abs_paths=$(echo "$staged_md" | sed "s|^|$repo_root/|")
+    # shellcheck disable=SC2086
+    "$py" "$repo_root/scripts/kb-lint.py" $abs_paths
+fi
+
+# Verify auto-generated INDEX.md files are up-to-date with current
+# frontmatter descriptions. If stale, print actionable error and fail —
+# never auto-stage (silent writes from hooks are footguns).
+"$py" "$repo_root/scripts/rebuild-indexes.py" --check
+rc=$?
+if [ $rc -ne 0 ]; then
+    cat >&2 <<EOF
+
+kb-pre-commit: auto-generated INDEX.md files are stale.
+  Fix: run \`python3 scripts/rebuild-indexes.py\` then \`git add\` the regenerated INDEX.md files.
+  The generator rebuilds folder listings from each file's \`description:\` frontmatter.
+EOF
+    exit $rc
+fi

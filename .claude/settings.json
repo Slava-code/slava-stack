@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq '(.tool_input.url // \"\") as $url | ($url | ltrimstr(\"https://\") | ltrimstr(\"http://\") | split(\"/\")[0] | ltrimstr(\"www.\")) as $host | if ($host == \"x.com\" or $host == \"twitter.com\" or $host == \"linkedin.com\") then {hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"deny\",permissionDecisionReason:\"WebFetch cannot see login-walled content (x.com/twitter.com/linkedin.com). Use mcp__claude-in-chrome__* (Chrome extension) instead. Chrome ops count as writes -- acquire runs/.lock first, release after, never run two Chrome tasks in parallel. Full rule: AGENT-GUIDE.md section \\\"Login-walled content\\\"; lock rule: CLAUDE.md section \\\"Single-writer rule\\\".\"}} else empty end'"
+          }
+        ]
+      }
+    ]
+  }
+}
