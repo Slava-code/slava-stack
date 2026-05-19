@@ -127,7 +127,7 @@ Anti-sycophancy rules stolen from `shannholmberg-llm-wikid` and applied across d
 - **Related sources touched** — wikilinks triggering the cross-ref rule below
 - **Open threads → next session** — resume hints
 
-**Tag syntax — `[?question]` and `[?decision]`.** Used inline inside checkpoints to flag candidates. **Never auto-promoted.** Promotion to `questions/` or `decisions/` happens only when the user explicitly asks ("promote the hipporag `[?question]` to questions/"). The `/study` skill picks up the tagged line and routes to `/add-entry` or `/kb-promote`. Tags are an affordance, not a commitment.
+**Tag syntax — `[?question]` and `[?decision]`.** Used inline inside checkpoints to flag candidates. **Never auto-promoted.** Promotion to `questions/` or `decisions/` happens only when the user explicitly asks ("promote the `[?question]` from session 3 to questions/"). The `/study` skill picks up the tagged line and routes to `/add-entry` or `/kb-promote`. Tags are an affordance, not a commitment.
 
 **Bidirectional cross-reference rule.** When a session on Source A meaningfully touches Source B (or concept C):
 - A's study file gets the full checkpoint with `[[study-sessions/B]] §checkpoint-N` under "Related sources touched"
@@ -255,7 +255,7 @@ One commit per atomic change, not one per session. Use conventional-commit-style
 | `tool:` | New tool/bookmark | `tool: add 2026-04-27-svgl` |
 | `todo:` | Todo/event | `todo: add 2026-04-20-email-advisor` / `todo: complete 2026-04-17-customer-intro` |
 | `archive:` | Archived file | `archive: 2026-04-10-old-brainstorm` |
-| `study:` | Study log checkpoint append, new concept folder, or study-system seed | `study: checkpoint hipporag-2 session 1` / `study: add concepts/graph-databases` |
+| `study:` | Study log checkpoint append, new concept folder, or study-system seed | `study: checkpoint paper-slug session 1` / `study: add concepts/example-concept` |
 | `index:` | Regeneration of auto-generated INDEX.md files | `index: regenerate after description edits` |
 | `conventions:` | Rulebook edit | `conventions: add growth rules section` |
 | `schema:` | Schema edit | `schema: add advisor type` |
