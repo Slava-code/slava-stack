@@ -2,4 +2,6 @@
 
 # brainstorming/ — contents
 
-_(empty)_
+## Files
+
+- [2026-01-15-example-vector-db-implications.md](2026-01-15-example-vector-db-implications.md) — EXAMPLE — brainstorm paired with the vector DB survey source; demonstrates the source+brainstorm pair pattern

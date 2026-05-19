@@ -2,4 +2,6 @@
 
 # sources/ — contents
 
-_(empty)_
+## Files
+
+- [2026-01-15-example-vector-db-survey.md](2026-01-15-example-vector-db-survey.md) — EXAMPLE — public survey comparing four open-source vector databases on recall, latency, and ops burden

@@ -2,4 +2,6 @@
 
 # comparisons/ — contents
 
-_(empty)_
+## Files
+
+- [2026-01-15-example-vector-db.md](2026-01-15-example-vector-db.md) — EXAMPLE — four-way vector DB comparison with decision_status; shows the Decision section pattern

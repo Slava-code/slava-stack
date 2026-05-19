@@ -2,4 +2,6 @@
 
 # team/ — contents
 
-_(empty)_
+## Subfolders
+
+- [founder-template/](founder-template/) — EXAMPLE — team member entry template; demonstrates the entity-folder pattern. Copy as team/<your-slug>/README.md

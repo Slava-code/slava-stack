@@ -2,4 +2,6 @@
 
 # decisions/ — contents
 
-_(empty)_
+## Files
+
+- [2026-01-15-example-vector-db-choice.md](2026-01-15-example-vector-db-choice.md) — EXAMPLE — decision record demonstrating ## Why and ## What we're giving up; cites the comparison and brainstorm
