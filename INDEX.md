@@ -9,11 +9,14 @@
 - [benchmarks/](benchmarks/) — Benchmark specifications — what we measure, how, against what; feeds experiment runs
 - [brainstorming/](brainstorming/) — Thought processes — exploratory, half-formed, options-weighing; distinct from crystallized strategy and decisions
 - [comparisons/](comparisons/) — Head-to-head competitor/alternative analyses with decision_status; flat files + entity folders for deep dives
+- [competitions/](competitions/) — External competitions & multi-round programs we enter — entity-folder per program (logs, forms, snapshots, results)
 - [concepts/](concepts/) — Meta-topic folders spanning multiple sources — README (research digest) + study-log (checkpoint appends)
 - [decisions/](decisions/) — One file per architectural/strategic decision — company-level record, scannable via git log + index
 - [discovery/](discovery/) — Customer discovery — interviews (post-call quote capture) and leads (pre-call signup/outreach log)
 - [experiments/](experiments/) — What we tried, measured, learned — distinct from benchmarks (spec); results with metrics + next steps
+- [finances/](finances/) — Cash-flow tracking: append-only ledger.csv, redacted statements, receipts; via /finance + /financial-summary
 - [inbox/](inbox/) — Untriaged drop queue — /drop captures go here, /kb-process-inbox drains; never long-lived content
+- [meetings/](meetings/) — Meeting/call records — digest + collapsed transcript; extracts propagate to todos/, strategy/, advisors/
 - [questions/](questions/) — Research questions we don't yet have answers to — promotion path: questions -> dispatches -> decisions
 - [raw/](raw/) — Founder-authored binaries (decks, recordings, screenshots) outside classified folders; cite via raw/<sub>/<file>.
 - [research-dispatches/](research-dispatches/) — Formal open research questions — hypothesis + prior constraints + findings + recommendation
@@ -24,5 +27,5 @@
 - [synthesis/](synthesis/) — Architecture snapshots — one per product track, concurrent; most recent per product = current view
 - [team/](team/) — Project team members — per-person README + voice preferences
 - [todos/](todos/) — Tasks, events, meetings, deadlines — lightweight layer linked to entities; file date = deadline
-- [tools/](tools/) — Bookmark-class entries — utility URLs/GPTs/reference docs to find/reuse later; not digested sources, not temporary inbox
+- [tools/](tools/) — Per-tool folders — each holds a README (tool entry) + optional manuals/playbooks/changelogs as tool-note files
 - [traction/](traction/) — Metrics snapshots — corpus/pipeline/revenue/team/qualitative; what moved since last snapshot

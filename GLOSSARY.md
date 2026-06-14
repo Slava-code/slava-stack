@@ -6,6 +6,9 @@ One-line definitions for terms used across the KB. Internally-distinct terms get
 
 ## Architecture vocabulary
 
+<!-- AUTOGEN:product-oneliner — source: newest synthesis/ one_liner: — edit there, run scripts/propagate-oneliner.py -->
+- **Your Product** — One-line current framing of what you're building. This block is GENERATED from the `one_liner:` field of your newest `synthesis/` snapshot — do not hand-edit it; edit the synthesis and run `scripts/propagate-oneliner.py` (or `/kb-synthesize`). Until you write a synthesis with a `one_liner:`, this placeholder stays.
+<!-- /AUTOGEN:product-oneliner -->
 - **project-kb** — The OSS framework: a closed-loop, AI-native knowledge base scaffold for startups (and other small organizations) to capture, refine, and act on their own knowledge.
 - **Closed-loop** — Capture → triage → refine → cite → decide → act all happen inside the same repo. No external SaaS in the critical path; the KB is the system of record.
 - **AI-native** — Designed for agent operation as a first-class user. Frontmatter, indexes, skills, and conventions exist so an LLM can navigate, write, and cite the KB without scraping or guessing.

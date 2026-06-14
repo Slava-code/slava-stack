@@ -172,6 +172,16 @@ Checks broken citations, stale `raw` drafts, oversized files, orphan files, `con
 
 Rolls up all material written for the given product track since the last synthesis, writes new dated file with `supersedes:` frontmatter. The generator regenerates INDEX.md; the prior file stays in the folder (with its description) until archived.
 
+### 9. I want to track money in/out
+
+```
+/finance
+```
+
+Log a transaction into `finances/ledger.csv` — three ways: just tell it ("$40 to Example SaaS today"), hand it a receipt screenshot, or point it at a bank statement file. It parses the fields, categorizes, checks for duplicates / reconciles against what's already logged, and **confirms with you before writing**. Don't `/drop` a raw bank statement (inbox is committed) — point `/finance` at a local file; it redacts account numbers before storing anything.
+
+For a period summary: `/financial-summary 2026-05` (writes a formatted breakdown to `finances/summaries/`). One-off questions like "how much did we spend on SaaS in May?" need no skill — just ask.
+
 ---
 
 ## Navigating the KB as a human
@@ -218,15 +228,10 @@ Validates every staged `.md` file against `schema/kb-schema.yaml`. Catches:
 
 Fix the content or update the schema — don't `--no-verify`. If the lint is wrong, that's a schema bug; edit `schema/kb-schema.yaml` (commit separately with `schema:` prefix).
 
-**2. INDEX freshness check** (`scripts/rebuild-indexes.py --check`)
-Verifies every auto-generated `INDEX.md` is in sync with the current `description:` frontmatter of its folder's children. If you edit a file's description but don't regenerate the indexes, the commit fails with:
+**2. INDEX auto-sync** (`scripts/rebuild-indexes.py`)
+Rebuilds every auto-generated `INDEX.md` from the current `description:` frontmatter of its folder's children, then stages any that changed — so a stale index can never block a commit. If you edit a file's description, the matching index is regenerated and folded into the same commit automatically; no manual regen step.
 
-```
-kb-pre-commit: auto-generated INDEX.md files are stale.
-  Fix: run `python3 scripts/rebuild-indexes.py` then `git add` the regenerated INDEX.md files.
-```
-
-The hook deliberately does NOT auto-write — silent modifications from hooks are a footgun. Run the regenerator yourself, stage the output, retry the commit.
+This is the one place the hook deliberately *does* auto-write. INDEX.md files are derived purely from frontmatter — nobody hand-reviews them, so re-staging them isn't the "silent write of unreviewed intent" footgun the rest of the hook guards against; it's keeping a derived artifact in sync. Source files are never auto-staged. (It also kills a force-push trap: with the old `--check`-and-reject, a forgotten index meant commit → amend, and since post-commit already pushed, the amend needed a force-push.)
 
 **Stale-hook symptom.** If your commits pass but `rebuild-indexes.py --check` on a fresh clone exits 1, your local `.git/hooks/pre-commit` is out of date with the committed version. Re-run `bash scripts/install-hooks.sh`.
 

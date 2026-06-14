@@ -29,6 +29,7 @@ If you find yourself guessing a rule, you're skipping T2 — stop and read `CONV
 | A design/strategy discussion to save | `brainstorming/YYYY-MM-DD-<slug>.md` |
 | A crystallized GTM/positioning/pricing/fundraising choice | `strategy/YYYY-MM-DD-<slug>.md` |
 | Investor blurb, pitch-application copy, elevator pitch, positioning messaging | `strategy/YYYY-MM-DD-<slug>.md` |
+| A submission/log/snapshot/form/organizer email for a multi-round competition or program | `competitions/<program-slug>/YYYY-MM-DD-<slug>.md` (entity folder; hub `README.md`). One-shot applications with no rounds can stay in `strategy/`. |
 | A single architectural or strategic decision | `decisions/YYYY-MM-DD-<slug>.md` |
 | An open question (lightweight, pre-formal) | `questions/YYYY-MM-DD-<slug>.md` |
 | A formalized research question (hypothesis → findings) | `research-dispatches/YYYY-MM-DD-<slug>.md` |
@@ -36,12 +37,15 @@ If you find yourself guessing a rule, you're skipping T2 — stop and read `CONV
 | A benchmark spec | `benchmarks/YYYY-MM-DD-<slug>.md` |
 | An architecture snapshot for a product | `synthesis/YYYY-MM-DD-<product>-architecture.md` |
 | A customer / prospect / stakeholder call | `discovery/<firm-slug>/<YYYY-MM-DD>-<call>.md` (folder default) |
+| A meeting/call transcript to save (any counterparty) | `meetings/YYYY-MM-DD-<counterparty>-<topic>.md` via `/meeting` — digest + collapsed transcript; extracts propagate to `todos/`/`strategy/`/`advisors/`. A customer call can ALSO get a `discovery/` interview digest that links here. |
 | Advisor outreach, professor profile, email drafts | `advisors/<person-slug>/<README or dated event>.md` |
 | Team member profile or notes | `team/<person-slug>/<README or dated note>.md` |
 | A task/event with a deadline | `todos/YYYY-MM-DD-<slug>.md` (date = deadline) |
 | A metric snapshot / traction update | `traction/YYYY-MM-DD-<scope>.md` |
+| A spend/payment/income, a receipt, or a bank statement | `finances/ledger.csv` (one row) via `/finance` — receipts → `finances/receipts/`, redacted statements → `finances/statements/`. NOT one md file per transaction. |
 | Deep-study session on an existing source | `study-sessions/<source-filename>.md` (filename mirrors source exactly; append-only H2 checkpoints) — written by `/study` |
 | Deep-study session on a cross-cutting concept | `concepts/<concept-slug>/` folder with `README.md` (type: concept, research digest) + `study-log.md` (type: study-log, checkpoints) — written by `/study` |
+| New content resolves an open thread in an *existing* doc | NOT a new file and NOT a supersede — an inline **resolution stamp** on that doc. See CONVENTIONS §"Growth rules" → "Resolution stamps". Do it in the same lock/commit session as the content that triggered it. |
 
 If the content type is unclear, drop it to `inbox/` via `/drop` and classify later.
 
@@ -89,6 +93,7 @@ If the brainstorm surfaces a sharp, researchable question, that question can gra
 | "What's open right now?" | `questions/` + `research-dispatches/` with `status: raw` or `reviewed`; also `todos/` with `status: pending` |
 | "Who are the competitors?" | `comparisons/INDEX.md` — one-liner per competitor; open the files whose description_status matters |
 | "Who are the advisors?" | `advisors/INDEX.md` then folders per advisor |
+| "What did we discuss in the meeting with X?" | `meetings/INDEX.md` — one-liner per meeting; open the file for digest + transcript |
 | "What's in the inbox?" | `inbox/` directory listing; run `/kb-process-inbox` to drain |
 | "What's due today?" | `/deadlines` (reads only frontmatter via subagent) |
 | "What are we giving up by choosing X?" | Each `decisions/*.md` has a required `## What we're giving up` section |
@@ -115,6 +120,9 @@ All skills live at `.claude/skills/` inside this repo. Activated when Claude is 
 | `/kb-add-folder` | Add a new top-level folder. Forces justification against CONVENTIONS growth rules. |
 | `/kb-promote <path>` | Move content along the promotion path (question → dispatch → decision → synthesis). Handles backlinks. |
 | `/add-todo` | Add a todo / event / meeting with deadline. |
+| `/meeting` | Save a meeting/call transcript → `meetings/` (digest + collapsed transcript), then extract action items / strategy insights / contacts / shared artifacts and propagate them to `todos/`/`strategy/`/`advisors/`/`raw/` — confirming each before writing. |
+| `/finance` | Ingest a transaction into `finances/ledger.csv`. Verbal / receipt / statement. Parses, categorizes, dedup + reconciles, confirms everything, appends/enriches, redacts statements, commits + pushes. |
+| `/financial-summary <period>` | Generate a persisted, formatted cash-flow summary for a month/quarter/range → `finances/summaries/`. One-off lookups need no skill — read the ledger and answer in chat. |
 | `/complete-todo <slug>` | Mark a todo complete. Moves to `todos/completed/`, auto-appends one-line entry to each `related:` entity's timeline. |
 | `/deadlines` | List today-due + overdue pending. Subagent reads frontmatter only. User-invoked. Agent may auto-invoke if relevant to the task. |
 | `/write-as <instruction>` | Draft text in the active user's voice (email, X post, LinkedIn, strategy note). Resolves active user via SOUL.md, loads `team/<slug>/voice/style-card.md`, stitches register-matched reverse-prompt pairs, produces a single draft. Read-only. Agent auto-invokes when user says "draft this as me" / "write [X] in my voice" / "reply to this email for me". |

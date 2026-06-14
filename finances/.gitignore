@@ -1,0 +1,8 @@
+# Raw bank statements must NEVER be committed — they contain full account numbers.
+# /finance parses + redacts in memory and writes only redacted snapshots to statements/.
+# This is a belt-and-suspenders guard against a raw drop landing here.
+statements-raw/
+*-RAW.*
+*-raw.pdf
+*-raw.csv
+*.raw.pdf

@@ -52,17 +52,27 @@ if [ -n "$staged_md" ]; then
     "$py" "$repo_root/scripts/kb-lint.py" $abs_paths
 fi
 
-# Verify auto-generated INDEX.md files are up-to-date with current
-# frontmatter descriptions. If stale, print actionable error and fail —
-# never auto-stage (silent writes from hooks are footguns).
-"$py" "$repo_root/scripts/rebuild-indexes.py" --check
-rc=$?
-if [ $rc -ne 0 ]; then
-    cat >&2 <<EOF
+# Keep auto-generated INDEX.md files in sync, then stage any that changed.
+#
+# Why auto-stage (and not the old `--check`-and-reject)? INDEX.md files are
+# derived *purely* from each entry's `description:` frontmatter — nobody
+# hand-reviews them, the generator is their source of truth. Re-staging a
+# regenerated index isn't a "silent write" of unreviewed intent (the footgun
+# the rest of this hook guards against); it's keeping a derived artifact
+# consistent with content already in the commit. The repo already required
+# every commit to leave ALL indexes fresh — this enforces that invariant by
+# fixing instead of rejecting.
+#
+# This matters because of the post-commit auto-push: with `--check`, a
+# forgotten index meant commit → amend → and since origin was already pushed,
+# a force-push. Auto-staging removes the #1 reason to amend. Scoped strictly
+# to INDEX.md; source files are never touched.
+"$py" "$repo_root/scripts/rebuild-indexes.py" >/dev/null
 
-kb-pre-commit: auto-generated INDEX.md files are stale.
-  Fix: run \`python3 scripts/rebuild-indexes.py\` then \`git add\` the regenerated INDEX.md files.
-  The generator rebuilds folder listings from each file's \`description:\` frontmatter.
-EOF
-    exit $rc
+# Stage every INDEX.md the rebuild created or modified. porcelain's last
+# field is the path; INDEX.md files are never renamed, so $NF is safe.
+changed_indexes=$(cd "$repo_root" && git status --porcelain | awk '$NF ~ /INDEX\.md$/ {print $NF}')
+if [ -n "$changed_indexes" ]; then
+    # shellcheck disable=SC2086
+    (cd "$repo_root" && git add $changed_indexes)
 fi

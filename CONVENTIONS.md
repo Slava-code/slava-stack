@@ -44,6 +44,7 @@ To rename: edit `schema/kb-schema.yaml` §`enums.product`, then update any exist
 | [`synthesis/`](synthesis/) | Architecture snapshots — one per product. Most recent dated file per `product:` = current view. | On explicit ask to "synthesize" / "snapshot" |
 | [`brainstorming/`](brainstorming/) | Exploratory thought processes — options weighed, half-formed ideas, train of thought. | On explicit ask to "save this brainstorm" |
 | [`strategy/`](strategy/) | Crystallized decisions on GTM, positioning, pricing, fundraising, partnerships. Distinct from brainstorming: strategy is settled, brainstorming is open. | When a strategic choice has been made and should be recorded |
+| [`competitions/`](competitions/) | External competitions / multi-round programs we enter. Entity-folder per program (`<slug>/`) holding logs, snapshots, forms, correspondence, round results. Distinct from `strategy/` (reusable positioning not bound to one program). | When entering/submitting to a program or logging a round |
 | [`decisions/`](decisions/) | One file per architectural or strategic decision. Company-level record — scannable via `git log` + catalog. | After a decision is resolved and commits a direction |
 | [`questions/`](questions/) | Lightweight open questions. Promoted to `research-dispatches/` when formalized. | On demand — "add this to questions" |
 | [`research-dispatches/`](research-dispatches/) | Formal: hypothesis → prior → findings → recommendation. Re-opens appended as dated `## Update` sections. | When asked to research a specific question |
@@ -55,7 +56,9 @@ To rename: edit `schema/kb-schema.yaml` §`enums.product`, then update any exist
 | [`concepts/`](concepts/) | Meta-topics spanning multiple sources. One folder per concept: `README.md` (research digest, `type: concept`) + `study-log.md` (`type: study-log`). | On explicit ask — `/study <concept>` |
 | [`discovery/`](discovery/) | Customer / prospect calls, VC interviews, pilot feedback. Entity-folder pattern for firms that recur. | After a call or interview |
 | [`advisors/`](advisors/) | Academic + advisor outreach: professor profiles, email drafts, collaboration angles, meeting notes. Entity-folder pattern default. | When researching or contacting an advisor |
+| [`meetings/`](meetings/) | Verbatim meeting/call records (any counterparty) — digest on top, transcript collapsed below. Load-bearing extracts propagate to `todos/`/`strategy/`/`advisors/`. | Via `/meeting` — whenever a transcript/notes exist |
 | [`traction/`](traction/) | Dated metric snapshots — corpus stats, customer pipeline, qualitative signals. | On explicit ask |
+| [`finances/`](finances/) | Cash-flow tracking — append-only `ledger.csv` (one row per transaction), redacted statement snapshots, stored receipts, generated summaries. Structured data, not prose. | Via `/finance` (ingest) + `/financial-summary` |
 | [`inbox/`](inbox/) | Queue of untriaged drops — URLs, notes, screenshots, topics-to-research. Processed one at a time by `/kb-process-inbox`. | **Unprompted** via `/drop` skill or `kbdrop` CLI |
 | [`tools/`](tools/) | Bookmark-class entries — utility URLs, GPTs, reference docs to find/reuse later. Distinct from `sources/` (digest) and `inbox/` (temp). | **Unprompted** — whenever user shares a useful tool/URL |
 | [`todos/`](todos/) | Tasks, events, deadlines. Completed items move to `todos/completed/`. | On explicit ask — `/add-todo` |
@@ -88,8 +91,8 @@ Common fields across types:
 ```yaml
 ---
 title: "Short descriptive title"
-type: brainstorm | synthesis | benchmark-spec | source | research-dispatch | comparison | experiment | decision | question | strategy | interview | lead | advisor | todo | event | inbox-drop | traction-snapshot | study-log | concept | tool
-product: enterprise | personal | cross-cutting
+type: brainstorm | synthesis | benchmark-spec | source | research-dispatch | comparison | experiment | decision | question | strategy | interview | lead | advisor | meeting | todo | event | inbox-drop | traction-snapshot | study-log | concept | tool
+product: track-a | track-b | shared   # rename to your tracks in schema/kb-schema.yaml §enums.product
 strategic-thread: [oss, gtm, fundraising, partnerships, hiring]   # optional multi-value; customize in schema
 source: "URL, conversation date, or origin"
 date_found: YYYY-MM-DD
@@ -208,6 +211,13 @@ Use `/kb-add-folder` to force the justification + creation of `<newfolder>/READM
 
 **Archiving** — move to `archive/` when fully superseded AND uncited for `ARCHIVE_UNCITED_MONTHS` months AND no active decision references it. Moving the file automatically removes its listing from the source folder's INDEX.md (regenerator skips files in `archive/`). Never delete.
 
+**Resolution stamps (partial supersede)** — when new content answers an *open thread inside* an otherwise-live doc, do NOT supersede, archive, or rewrite the whole doc. Supersede is whole-file replacement (`supersedes:` frontmatter, a successor file); a resolution stamp closes *one question* inside a file that's still current. This is the lightweight sibling of supersede, and the common case — a new entry often settles a thread recorded elsewhere without invalidating the host doc.
+- **Format:** `**Resolved YYYY-MM-DD → [[resolver-file]]:** <one line on what was settled>`, placed at the *head* of the resolved bullet/section. Leave the original question text below it — don't delete it; the open thread is part of the history, the stamp just caps it.
+- **Pairs with the open-thread vocabulary:** a stamp closes a `## Open threads` bullet, a `[?question]` / `[?decision]` tag (`/study`), or any line phrased as an unresolved question. Reuse those markers so threads stay greppable.
+- **Bidirectional:** the resolving doc links back to the doc it resolved (a `## Related` wikilink is enough). Both sides know about the link, same as supersede.
+- **Trigger:** any write that settles a question recorded elsewhere — most often mid-`/add-entry` or `/meeting`, when the new entry happens to answer an older thread. The skills prompt for it; the obligation holds for any write, skill or hand edit.
+- **Mechanics:** it's a hand edit, no skill of its own. No `supersedes:`/`superseded_by:` frontmatter (that's whole-file), no archive (the host doc stays live). Do it inside the same lock + commit session as the content that triggered it.
+
 **Anti-cramming** — if appending a new major section would push the doc past `ANTI_CRAMMING_MAX_MAJOR_SECTIONS`, consider splitting into a new file first.
 
 **Anti-thinning** — file below `ANTI_THINNING_MIN_LINES` lines that isn't a glossary/source entry? Fold into an existing file. The file's `description:` frontmatter already gives it one-line presence in the parent folder's auto-generated INDEX.md; a whole file for one sentence is wasteful.
@@ -249,11 +259,13 @@ One commit per atomic change, not one per session. Use conventional-commit-style
 | `interview:` / `discovery:` | Customer/prospect call | `interview: add 2026-04-17-acme-capital-partner-call` |
 | `lead:` | Pre-call prospect event (signup, outreach sent/received) | `lead: add 2026-04-21-prospect-signup` / `lead: contacted 2026-04-23-prospect-slug` |
 | `advisor:` | Advisor profile / event | `advisor: contact 2026-04-17-doan-email-sent` |
+| `meeting:` | Meeting/call record (+ its propagated extracts) | `meeting: add 2026-04-17-example-advisor-pricing` |
 | `question:` | Open question | `question: add 2026-04-17-embedding-model` / `question: promote 2026-04-17-embedding-model → research-dispatches/` |
 | `research:` | Research dispatch | `research: add 2026-04-17-entity-matching-enterprise` |
 | `inbox:` | Drop or process | `inbox: drop 2026-04-17-090234-linkedin-post` / `inbox: process 2026-04-17-090234 → sources/2026-04-17-paper-slug` |
 | `tool:` | New tool/bookmark | `tool: add 2026-04-27-svgl` |
 | `todo:` | Todo/event | `todo: add 2026-04-20-email-advisor` / `todo: complete 2026-04-17-customer-intro` |
+| `finance:` | Ledger ingest or summary | `finance: log 2026-05-30 Example SaaS $40 (saas)` / `finance: reconcile 2026-05` / `finance: summary 2026-05` |
 | `archive:` | Archived file | `archive: 2026-04-10-old-brainstorm` |
 | `study:` | Study log checkpoint append, new concept folder, or study-system seed | `study: checkpoint paper-slug session 1` / `study: add concepts/example-concept` |
 | `index:` | Regeneration of auto-generated INDEX.md files | `index: regenerate after description edits` |
@@ -276,7 +288,7 @@ One commit per atomic change, not one per session. Use conventional-commit-style
 
 All commits end with:
 ```
-Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 ```
 
 ---
@@ -287,6 +299,7 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 - Don't write synthesis / benchmark / comparison / dispatch / experiment / decision / strategy / advisor / discovery files without being asked. These are explicit milestones, not running commentary.
 - Don't create dated "session" subfolders. Flat-date naming is the structure, except the multi-chapter exception for entities.
 - Don't delete or overwrite old files when superseding. Mark stale in catalog, write a new dated file, set `supersedes:`. History is the point.
+- Don't supersede, archive, or rewrite a whole doc when only one thread *inside* it got resolved — use an inline **resolution stamp** (see §"Growth rules" → "Resolution stamps"). And don't leave the thread silently resolved either: stamp it so the next reader doesn't re-litigate a settled question.
 - Don't duplicate content that lives authoritatively in a sibling repo (your product code, an ops repo, a separate research repo). Cite out.
 - Don't bypass the single-writer lock.
 - Don't skip the pre-commit lint.

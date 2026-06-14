@@ -1,6 +1,6 @@
 # project-kb — Agent Entry (T0)
 
-A closed-loop, AI-native knowledge base for running a startup. Holds research, decisions, brainstorms, experiments, competitor analyses, customer interviews, advisor outreach, strategy, GTM, fundraising — anything the team needs to reason about together.
+A closed-loop, AI-native knowledge base for running a startup. Holds research, decisions, brainstorms, experiments, competitor analyses, customer interviews, advisor outreach, strategy, GTM, fundraising, cash-flow tracking — anything the team needs to reason about together.
 
 Git-backed. Version history is authoritative for "when did we X" — see `git log --follow <file>`.
 
@@ -27,9 +27,12 @@ Humans: read [`USER-MANUAL.md`](USER-MANUAL.md) for a practical quickstart. Pers
 - **Add content to the KB** — `/add-entry` (picks folder, copies template, fills frontmatter, commits, pushes)
 - **Drop something to process later** — `/drop <content-or-url>` (queues to `inbox/`). Shell alias from terminal: `kbdrop <url-or-text>` if installed — same effect, no Claude Code session needed.
 - **Process the inbox queue** — `/kb-process-inbox` (each drop handled by a fresh subagent)
+- **Save a meeting/call transcript (+ propagate its contents)** — `/meeting` (writes `meetings/` digest + collapsed transcript, then fans action items → `todos/`, insights → `strategy/`, contacts → `advisors/`, artifacts → `raw/`; confirms each before writing)
 - **Add a todo/event with deadline** — `/add-todo`
 - **Complete a todo** — `/complete-todo <slug>` (auto-merges related-entity timeline entry)
 - **Check deadlines** — `/deadlines` (user-invoked; agent may invoke if relevant to task)
+- **Log a transaction / spend / payment / receipt / bank statement** — `/finance` (appends to `finances/ledger.csv`; parses verbal note, receipt image, or statement; dedup + reconcile; confirms before writing)
+- **Summarize cash flow for a period** — `/financial-summary <period>` (persisted breakdown → `finances/summaries/`; one-off lookups just ask, no skill)
 - **Audit the KB** (freshness, broken citations, stale drafts) — `/kb-audit`
 - **Roll up a synthesis** — `/kb-synthesize <track>`
 - **Archive a file** — `/kb-archive <path>`

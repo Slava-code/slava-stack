@@ -11,6 +11,7 @@ Exit code: 0 = pass, 1 = errors found.
 Called by .git/hooks/pre-commit and by /kb-audit skill.
 """
 
+import importlib.util
 import os
 import re
 import sys
@@ -30,6 +31,53 @@ SCHEMA_PATH = REPO_ROOT / "schema" / "kb-schema.yaml"
 def load_schema():
     with open(SCHEMA_PATH) as f:
         return yaml.safe_load(f)
+
+
+def _load_propagate_module():
+    """Import scripts/propagate-oneliner.py (hyphenated → importlib) so we reuse
+    its source-selection + render logic instead of duplicating it (duplication is
+    the drift we're guarding against)."""
+    path = REPO_ROOT / "scripts" / "propagate-oneliner.py"
+    if not path.exists():
+        return None
+    spec = importlib.util.spec_from_file_location("propagate_oneliner", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def check_oneliner_propagation(schema, errors):
+    """Global invariant: each target's AUTOGEN block must equal the canonical
+    render of the newest synthesis `one_liner:`. Drift → error with a fix hint.
+    Runs once per lint invocation (the invariant is repo-global)."""
+    cfg = schema.get("oneliner_propagation") or {}
+    mb, me = cfg.get("marker_begin"), cfg.get("marker_end")
+    targets = cfg.get("targets") or []
+    if not (mb and me and targets):
+        return
+    prop = _load_propagate_module()
+    if prop is None:
+        return
+    one_liner, source = prop.find_source_one_liner()
+    if one_liner is None:
+        return  # no source one_liner yet → nothing to enforce
+    rendered = prop.render_block(one_liner, mb, me)
+    for tname in targets:
+        tpath = REPO_ROOT / tname
+        if not tpath.exists():
+            errors.append(f"{tname}: one-liner propagation target missing")
+            continue
+        _, status = prop.replace_block(tpath.read_text(encoding="utf-8"), mb, me, rendered)
+        if status == "no-markers":
+            errors.append(
+                f"{tname}: AUTOGEN:product-oneliner markers missing "
+                f"(run `python3 scripts/propagate-oneliner.py`)"
+            )
+        elif status == "written":
+            errors.append(
+                f"{tname}: product one-liner is STALE vs synthesis/{source.name} — "
+                f"run `python3 scripts/propagate-oneliner.py` and re-stage"
+            )
 
 
 def parse_frontmatter(text):
@@ -197,6 +245,15 @@ def validate_file(filepath, schema, errors):
     # description: optional on every type; when present, enforce length + style
     check_description(fm, schema.get("description_rules"), filepath, errors)
 
+    # superseded_by: if set, the file must carry a visible banner so a reader
+    # landing on it directly sees it's dead (deterministic; safe to enforce).
+    if fm.get("superseded_by"):
+        if not re.search(r"^>\s*.*[Ss]uperseded by", body, re.MULTILINE):
+            errors.append(
+                f"{filepath}: has `superseded_by:` but no visible banner — add a top "
+                f"blockquote, e.g. `> ⚠️ Superseded by [[...]] — YYYY-MM-DD`"
+            )
+
     # required body sections (H2 headers); permissive — match if H2 starts with the
     # required word, optionally followed by punctuation/colon/etc. Enforces topic
     # presence, not exact heading string.
@@ -240,6 +297,9 @@ def main(args):
             continue
         validate_file(f, schema, errors)
         checked += 1
+
+    # Global invariant (not per-file): always enforce one-liner propagation.
+    check_oneliner_propagation(schema, errors)
 
     if errors:
         print(f"kb-lint: {len(errors)} error(s) in {checked} file(s):", file=sys.stderr)

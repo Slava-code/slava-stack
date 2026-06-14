@@ -15,9 +15,10 @@ Steps:
    - synthesis: `## Counter-arguments`, `## Data gaps`
    - decision: `## Why`, `## What we're giving up`
    - comparison: `## Decision`
-6. **Regenerate INDEXes.** Run `python3 scripts/rebuild-indexes.py`. It rewrites the destination folder's `INDEX.md` (and root `INDEX.md` if a new folder was created). Stage any modified INDEX.md files alongside the new content file.
-7. **Stage + commit + push.** Use the right commit prefix per CONVENTIONS §"Commit convention". Message format: `<prefix>: <verb> <slug>`. Always push after.
-8. **Release the lock.** `rm runs/.lock`.
+6. **Stamp any thread this entry resolves.** Ask: does this new entry answer an *open thread* recorded in an existing doc — a `## Open threads` bullet, a `[?question]` / `[?decision]` tag, an unresolved question you remember from this session? If yes, apply an inline **resolution stamp** to that doc (CONVENTIONS §"Growth rules" → "Resolution stamps"): `**Resolved YYYY-MM-DD → [[this-entry]]:** <one line>` at the head of the resolved bullet, original text left below. Add a back-link from this entry's `## Related`. Do NOT supersede/rewrite the host doc — it stays live. Stage the stamped doc to commit alongside the new entry. Skip if nothing is resolved (most entries resolve nothing — don't manufacture one).
+7. **Regenerate INDEXes.** Run `python3 scripts/rebuild-indexes.py`. It rewrites the destination folder's `INDEX.md` (and root `INDEX.md` if a new folder was created). Stage any modified INDEX.md files alongside the new content file.
+8. **Stage + commit + push.** Use the right commit prefix per CONVENTIONS §"Commit convention". Message format: `<prefix>: <verb> <slug>`. Always push after.
+9. **Release the lock.** `rm runs/.lock`.
 
 If the pre-commit lint fails: fix the content (or amend the schema, with a separate `schema:` commit) — never `--no-verify`.
 

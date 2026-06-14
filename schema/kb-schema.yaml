@@ -112,6 +112,13 @@ enums:
     - template
     - reference-doc
     - gist
+    - plugin
+    - mcp-server
+  tool_note_kind:
+    - manual
+    - playbook
+    - changelog
+    - notes
   traction_scope:
     - corpus
     - pipeline
@@ -129,6 +136,18 @@ enums:
     - email-sent
     - meeting-notes
     - follow-up
+
+  # Counterparty role in a `type: meeting` file — what kind of person/org we met.
+  # Used for at-a-glance scanning of meetings/; the specific people/firms are
+  # linked via `related:` wikilinks, not this enum.
+  meeting_kind:
+    - advisor
+    - customer
+    - investor
+    - partner
+    - internal
+    - networking
+    - other
 
 # ───────────────────────────────────────────────────────────────
 # Files exempt from frontmatter validation
@@ -174,6 +193,26 @@ description_rules:
     - "](http"  # no markdown links
 
 # ───────────────────────────────────────────────────────────────
+# Canonical product one-liner — anti-drift propagation.
+# Single source of truth: the newest synthesis/*.md carrying a
+# `one_liner:` field. scripts/propagate-oneliner.py writes that string
+# into the AUTOGEN-marked block of each target; kb-lint rejects drift
+# (target block must match source, or commit fails with a fix hint).
+# This generalizes the "generated, not hand-maintained" rule that
+# already governs INDEX.md, applied to the always-loaded T1 layer.
+# Source of truth is your newest synthesis/ snapshot — edit the
+# `one_liner:` there and re-run the script; do not hand-edit targets.
+# ───────────────────────────────────────────────────────────────
+
+oneliner_propagation:
+  marker_begin: "<!-- AUTOGEN:product-oneliner — source: newest synthesis/ one_liner: — edit there, run scripts/propagate-oneliner.py -->"
+  marker_end: "<!-- /AUTOGEN:product-oneliner -->"
+  targets:
+    - GLOSSARY.md
+  # /kb-synthesize warns (not errors) when the newest synthesis is older than this.
+  synthesis_stale_warn_months: 3
+
+# ───────────────────────────────────────────────────────────────
 # Type definitions — what each content file must contain
 # ───────────────────────────────────────────────────────────────
 
@@ -196,14 +235,18 @@ types:
   synthesis:
     folder: synthesis/
     required: [title, type, product, confidence, date_found, status]
-    optional: [supersedes, strategic-thread]
+    # one_liner: canonical current-framing sentence — single source of truth
+    #   propagated into GLOSSARY.md AUTOGEN block by scripts/propagate-oneliner.py.
+    # last_verified: bumped by /kb-synthesize on a no-delta run (still-current stamp).
+    # superseded_by: backlink stamped onto a snapshot when a newer one supersedes it.
+    optional: [supersedes, superseded_by, strategic-thread, one_liner, last_verified]
     status_values: status_general
     body_required_sections: [Counter-arguments, Data gaps]
 
   decision:
     folder: decisions/
     required: [title, type, product, confidence, date_found, status]
-    optional: [supersedes, strategic-thread]
+    optional: [supersedes, superseded_by, strategic-thread]
     status_values: status_general
     body_required_sections: [Why, "What we're giving up"]
 
@@ -267,6 +310,30 @@ types:
       redacted: {type: boolean}
     status_values: status_general
     body_required_sections: []
+
+  meeting:
+    # A meeting/call with anyone — advisor, customer, investor, partner, internal.
+    # The verbatim transcript is the RECORD; the load-bearing extracts (action
+    # items, strategy insights, contacts, shared artifacts) propagate OUT to
+    # todos/, strategy/, advisors/, raw/ via the /meeting skill. Digest-on-top
+    # (`## TL;DR`) is mandatory so a meeting file is never a raw dump; the
+    # verbatim transcript lives collapsed at the bottom. Counterparties are
+    # linked via `related:` wikilinks, NOT by folder — so a meeting with an
+    # advisor stays cross-referenced with advisors/<slug>/ rather than splitting
+    # entity context. Distinct from `interview` (discovery/, customer-call
+    # digest keyed to a firm/persona) and `advisor-event` (advisors/<slug>/,
+    # relationship timeline): those are relationship-keyed digests; this is the
+    # format-keyed verbatim record any of them can cite into.
+    folder: meetings/
+    required: [title, type, product, date_found, participants, counterparty_kind, status]
+    optional: [related, source, confidence, redacted, tags, description]
+    extra_fields:
+      participants: {type: list}
+      counterparty_kind: {enum: meeting_kind}
+      related: {type: list}
+      redacted: {type: boolean}
+    status_values: status_general
+    body_required_sections: ["TL;DR"]
 
   lead:
     # Pre-interview prospect from an inbound channel (website demo form, warm referral, etc.).
@@ -371,15 +438,33 @@ types:
     body_required_sections: []
 
   tool:
-    # Bookmark-class entry — utility URLs, GPTs, web tools, reference docs the user
-    # wants to find/reuse later. Distinct from `source:` which requires a factual
-    # digest. Lightweight: body capped ~15 lines, no required sections. The
-    # `description:` field IS the entry — anti-thinning rule does not apply.
+    # Canonical entry for a tool we use or reference. Lives at
+    # `tools/<slug>/README.md` (per-entity folder, mirrors advisors/<slug>/).
+    # Light tools may have a one-line body (anti-thinning rule does not apply
+    # for bookmark-class tools). Heavy tools may have a full-manual body in the
+    # README plus companion `tool-note` files (playbooks, manuals, changelogs).
     folder: tools/
+    file_pattern: "*/README.md"
     required: [title, type, product, url, kind, date_found, tags, status]
     extra_fields:
       url: {type: string}
       kind: {enum: tool_kind}
+    status_values: status_general
+    body_required_sections: []
+
+  tool-note:
+    # Companion file inside a tool folder — playbook (when X breaks), manual
+    # (extended setup walkthrough), changelog (version notes), or notes
+    # (anything else operational). Lives at `tools/<slug>/<filename>.md`
+    # alongside the tool's README.md. `tool:` field must match parent folder
+    # name so the link is durable.
+    folder: tools/
+    file_pattern: "*/[a-z]*.md"
+    required: [type, tool, kind, date_found, status]
+    optional: [title, source, tags, product]
+    extra_fields:
+      tool: {type: string}
+      kind: {enum: tool_note_kind}
     status_values: status_general
     body_required_sections: []
 
@@ -424,6 +509,51 @@ types:
     file_pattern: "*/README.md"
     required: [title, type, product, date_found, tags, status]
     status_values: status_general
+    body_required_sections: []
+
+  finance-summary:
+    # Generated by /financial-summary from finances/ledger.csv for a period.
+    # Persisted at finances/summaries/<period>.md. Not hand-edited.
+    # The ledger itself (finances/ledger.csv) is non-markdown — lint only
+    # validates .md files, so the CSV needs no type. finances/README.md
+    # validates as type: folder.
+    folder: finances/
+    file_pattern: "summaries/*.md"
+    required: [type, title, period, date_found, status]
+    optional: [description, format]
+    extra_fields:
+      period: {type: string}
+      format: {type: string}
+    status_values: status_general
+    body_required_sections: []
+
+  infrastructure:
+    # Private operational note — a VPS host, VPN endpoint, exit-node plan, or bot
+    # token. Lives under team/<slug>/private/ (gitignored). `name:` is the title.
+    folder: "team/*/private/"
+    required: [type, name, description]
+    body_required_sections: []
+
+  resume:
+    # Markdown extraction of a team member's resume PDF. team/<slug>/private/,
+    # gitignored. `source_pdf:` points at the canonical PDF.
+    folder: "team/*/private/"
+    required: [type, title]
+    optional: [description, source_pdf, source_pdf_mtime, extracted_at]
+    extra_fields:
+      source_pdf: {type: string}
+      source_pdf_mtime: {type: string}
+      extracted_at: {type: string}
+    body_required_sections: []
+
+  application-artifact:
+    # Frozen application/submission artifact kept for the record (e.g. a verbatim
+    # transcript or a snapshot of what was submitted to a program). Lives under
+    # team/<slug>/private/, gitignored. Not living KB content — a point-in-time
+    # capture, not maintained.
+    folder: "team/*/private/"
+    required: [type, title]
+    optional: [description, generated_at]
     body_required_sections: []
 
   folder:

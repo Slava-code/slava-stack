@@ -17,6 +17,16 @@ The scope of this KB is strategic and cross-cutting artifacts for the project �
 
 ---
 
+## Finances — a bounded carve-out
+
+`finances/` is the one place transaction data and small binary receipts live, because cash-flow tracking needs structured records (see `finances/README.md`). It is a *deliberate, bounded* exception to two rules above, not a loophole:
+
+- **Allowed:** the append-only `finances/ledger.csv`, **small** receipt images in `finances/receipts/`, and **redacted** statement snapshots (`finances/statements/`, last-4 only).
+- **Still out:** raw bank statements (full account numbers — redacted in memory, never committed), full account/routing/card numbers anywhere, multi-MB binaries, and **cap tables / contracts / payroll-comp detail** (those remain out per "Out of scope" above — `finances/` is operational cash-flow, not legal/HR records).
+- This is *tracking*, not bookkeeping — no double-entry, accrual, P&L, or tax prep. If real books are needed, that's QuickBooks; `finances/` becomes the feeder.
+
+---
+
 ## Anti-patterns we won't enable
 
 - **Append-only mega-files.** We use dated folders with one-file-per-entry instead (`decisions/`, `questions/`, `traction/`).
