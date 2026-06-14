@@ -527,34 +527,11 @@ types:
     status_values: status_general
     body_required_sections: []
 
-  infrastructure:
-    # Private operational note — a VPS host, VPN endpoint, exit-node plan, or bot
-    # token. Lives under team/<slug>/private/ (gitignored). `name:` is the title.
-    folder: "team/*/private/"
-    required: [type, name, description]
-    body_required_sections: []
-
-  resume:
-    # Markdown extraction of a team member's resume PDF. team/<slug>/private/,
-    # gitignored. `source_pdf:` points at the canonical PDF.
-    folder: "team/*/private/"
-    required: [type, title]
-    optional: [description, source_pdf, source_pdf_mtime, extracted_at]
-    extra_fields:
-      source_pdf: {type: string}
-      source_pdf_mtime: {type: string}
-      extracted_at: {type: string}
-    body_required_sections: []
-
-  application-artifact:
-    # Frozen application/submission artifact kept for the record (e.g. a verbatim
-    # transcript or a snapshot of what was submitted to a program). Lives under
-    # team/<slug>/private/, gitignored. Not living KB content — a point-in-time
-    # capture, not maintained.
-    folder: "team/*/private/"
-    required: [type, title]
-    optional: [description, generated_at]
-    body_required_sections: []
+  # NOTE: types for private (gitignored) content under team/<slug>/private/
+  # — resumes, infra/host/VPN notes, application artifacts — are deliberately
+  # NOT defined here. That content never lives in this repo (see .gitignore);
+  # the framework only ships the .gitignore rule that protects it. Adopters who
+  # want lint coverage on their own private notes can add types locally.
 
   folder:
     # Folder-meta README — the hand-authored purpose/rules doc at the root
