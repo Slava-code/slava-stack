@@ -3,6 +3,9 @@ __pycache__/
 *.pyc
 .venv/
 
+# Office temp/lock files (e.g. ~$Deck.pptx) — created while a doc is open
+~$*
+
 # Single-writer lock — session-local, not versioned
 runs/.lock
 

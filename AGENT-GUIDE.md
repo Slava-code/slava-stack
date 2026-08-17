@@ -83,6 +83,17 @@ If the brainstorm surfaces a sharp, researchable question, that question can gra
 
 ---
 
+## Comparison protocol — grounding "X vs your project"
+
+Before comparing anything external (competitor, tool, paper, thesis) to your project — in chat OR in a written entry — ground your project's side first. Do not compare against your memory of what the project is; the thesis, GTM, and positioning move faster than any cached summary.
+
+1. **Dispatch subagent(s) to sweep the repo** (Explore-type, read-only) for every file relevant to the comparison axis. Minimum sweep: newest `synthesis/` for the product track, `GLOSSARY.md` product one-liner, `comparisons/INDEX.md`, newest `strategy/*positioning*`, related `decisions/` and `brainstorming/` entries. Widen the sweep to any linked sibling KB when the comparison touches a track that lives there.
+2. **Weight by date — staleness is real.** Every file carries its date in the filename/frontmatter. Follow `supersedes:` chains to the tip; treat anything older than the newest relevant synthesis (or > ~2 months old with no newer sibling) as *potentially stale* and say so when citing it. A confident comparison built on a stale snapshot is worse than a hedged one.
+   **The synthesis itself can be the stale artifact.** When `strategy/` or `brainstorming/` files postdate the newest synthesis, the freshest dated file on the comparison axis wins — the synthesis (and the GLOSSARY one-liner derived from it) is the staleness *reference*, not the truth anchor. If the sweep finds this drift, flag it and suggest `/kb-synthesize`. (Example: a synthesis from two months ago still describes the old positioning while newer `strategy/` files record a pivot — the newer files win.)
+3. **Cite the grounding.** The comparison (chat answer or `comparisons/` / `brainstorming/` entry) names which KB files anchored the project side, with their dates, so the next reader can re-check freshness.
+
+---
+
 ## Common queries ("where do I look to answer X?")
 
 | User asks... | Primary file / folder |

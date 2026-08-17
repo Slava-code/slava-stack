@@ -52,6 +52,8 @@ If a user names a person, company, tool, or concept ("what does X do?", "tell me
 
 Web-in-parallel is fine. But if the KB has the thing, the KB wins — it's the opinionated, reviewed version, and the web answer should be used to *extend* it (new angles, updates), not replace it.
 
+**Comparing something to your product?** Ground your side first: send subagent(s) to sweep the repo for all relevant files (newest synthesis, positioning, comparisons, decisions) and weight them by date — stale snapshots mislead. Full protocol: `AGENT-GUIDE.md` §"Comparison protocol".
+
 **Unknown term — grep first, then ask.** If the user names something you don't recognize at all (tool, codename, person, internal shorthand), grep the KB *before* falling back to "what did you mean?" — the KB very often has the digest already. If grep turns up nothing either, *then* ask the user. Do not substitute a similarly-named tool (e.g. "OpenClaw" → "OpenHands") — guesses anchor wrong and waste a turn.
 
 ## Commit + push together (no local-only buffering)

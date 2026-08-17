@@ -2,4 +2,8 @@
 
 # raw/ — contents
 
-_(empty)_
+## Subfolders
+
+- [events/](events/) — Founder-authored event-planning binaries (budget frameworks, sponsor decks, run-of-show) + markdown sidecars
+- [papers/](papers/) — Original external paper PDFs preserved beside their KB source digests
+- [transcripts/](transcripts/) — Verbatim transcripts of founder brainstorms; primary artifact that digested brainstorming/ + strategy/ entries cite

@@ -16,7 +16,9 @@ staged_md=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.md$' ||
 # no markdown changes → no lint work, but still verify index freshness below
 
 find_py_with_yaml() {
-    for py in python3 \
+    for py in "$repo_root/.venv/bin/python" \
+              "$HOME"/.local/share/uv/python/cpython-3.1*/bin/python3.1* \
+              python3 \
               "$HOME/opt/anaconda3/bin/python3" \
               /opt/anaconda3/bin/python3 \
               /opt/homebrew/bin/python3 \
@@ -71,7 +73,10 @@ fi
 
 # Stage every INDEX.md the rebuild created or modified. porcelain's last
 # field is the path; INDEX.md files are never renamed, so $NF is safe.
-changed_indexes=$(cd "$repo_root" && git status --porcelain | awk '$NF ~ /INDEX\.md$/ {print $NF}')
+# Skip deleted indexes ($1 == "D"): the deletion is already staged by whatever
+# removed the folder, and `git add` on a now-absent path fails ("did not match
+# any files"), which would abort the whole commit when a folder is deleted.
+changed_indexes=$(cd "$repo_root" && git status --porcelain | awk '$1 != "D" && $NF ~ /INDEX\.md$/ {print $NF}')
 if [ -n "$changed_indexes" ]; then
     # shellcheck disable=SC2086
     (cd "$repo_root" && git add $changed_indexes)

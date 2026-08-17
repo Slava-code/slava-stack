@@ -9,6 +9,10 @@ type: folder
 Holds founder-authored binary assets that don't fit a classified KB folder type. Currently scoped to:
 
 - [`pitchdecks/`](pitchdecks/) — pitch deck PDFs + paired markdown sidecars
+- [`contracts/`](contracts/) — signed/draft legal agreements (contractor, NDA, IP-assignment) + paired markdown sidecars
+- [`events/`](events/) — event-planning binaries for events we host (budgets, sponsor decks, run-of-show)
+- [`papers/`](papers/) — original external paper PDFs preserved beside their `sources/` digests
+- [`transcripts/`](transcripts/) — verbatim founder-brainstorm transcripts (primary artifacts)
 
 Cite the canonical file from elsewhere using the relative path appropriate to the citing file (e.g. `[[../raw/pitchdecks/YYYY-MM-DD-pitchdeck.pdf]]`).
 
