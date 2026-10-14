@@ -33,7 +33,7 @@ Web references — papers, articles, talks, OSS projects — worth knowing about
 - [<Project / tool>](<URL>) — <1-line description>
 - ...
 
-<If any of these become load-bearing during study, drop them to inbox/ via /drop and process into sources/.>
+<If any of these become load-bearing during study, add them to sources/ via /add-entry.>
 
 ## Scoping question
 

@@ -1,6 +1,6 @@
 ---
 name: study-status
-description: "Read-only resume query for a project-kb study log. Returns the 'where were we left off' summary for a source or concept: latest checkpoint date, next-session intent, open threads, last 3 checkpoint bullets. No lock, no session started, no writes. Use when: user asks 'where were we left off on X', 'what's the status on Y', 'what have we studied about Z', 'show me the <source> study log summary'. Do NOT use to start a session (use /study). Do NOT use for the global unstudied-list (use /study-unstudied)."
+description: "Read-only: where we left off studying a source or concept (latest checkpoint, open threads). Use when the user asks: where were we on X, what have we studied about Y."
 ---
 
 # /study-status — Read-only study-log resume query

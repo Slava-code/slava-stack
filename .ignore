@@ -1,0 +1,14 @@
+# Search scope for ripgrep, which backs Claude Code's Grep tool. Not a git ignore:
+# everything here stays tracked (or stays on disk); it only changes what a default
+# search returns. Use `rg --no-ignore` or `grep -r` to search everything.
+
+# 1. Re-include gitignored private notes so agents can find them
+#    (.ignore outranks .gitignore; without this, Grep silently skips them).
+#    The pattern must mirror the bare `private/` rule in .gitignore to win.
+!private/
+
+# 2. Keep raw dumps and scrapes out of default results. They are large, match
+#    almost any term, and outrank the digests that hold the answer.
+runs/fetches/
+raw/transcripts/
+*.save

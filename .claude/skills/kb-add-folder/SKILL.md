@@ -1,6 +1,6 @@
 ---
 name: kb-add-folder
-description: "Add a new top-level folder to the project-kb. Enforces CONVENTIONS § \"Growth rules\" (named constants NEW_FOLDER_MIN_FILES + NEW_FOLDER_INDEX_MAX_LINES, doesn't fit existing folders, structural not topic difference). Creates folder + README.md (hand-authored rules/purpose with type: folder frontmatter) + AGENT-GUIDE routing update. Generator auto-creates INDEX.md. If a new file type is introduced, also updates schema + templates + CONVENTIONS. Use when: user says add a new folder / new content category, you think current folders don't fit a new class of content, you need a new type."
+description: "Add a new top-level KB folder, enforcing the growth rules in CONVENTIONS.md and updating the routing guide. Use when the user asks for a new folder or content category, or content fits no existing folder."
 ---
 
 # /kb-add-folder

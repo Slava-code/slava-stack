@@ -1,6 +1,6 @@
 ---
 name: finance
-description: "Ingest a cash-flow transaction into the project-kb ledger (finances/ledger.csv). Three input modes: verbal ('$40 to Example SaaS today'), a receipt/screenshot image, or a bank statement (local file path). Parses fields, categorizes via the merchant map, deduplicates + reconciles against the existing ledger, CONFIRMS everything with the user before writing, then appends/enriches rows, stores receipts, writes redacted statement snapshots, commits with finance: prefix, pushes. Use when user says: log this expense, record this payment, add this transaction, here's a receipt, here's my bank statement, we got paid X, we spent X on Y, track this cost."
+description: "Log a transaction into finances/ledger.csv from a verbal note, a receipt image or a bank statement; dedups, confirms, commits. Use when the user says: log this expense, record this payment, here's a receipt, here's my statement, we spent X on Y, we got paid X."
 ---
 
 # /finance
@@ -16,7 +16,7 @@ Ingests transactions into `finances/ledger.csv`. **One in-session skill — no d
 3. **Detect input mode:**
    - **Verbal** — free text from the user.
    - **Receipt** — an image path / attachment.
-   - **Statement** — a **local file path** the user points you at (PDF/CSV/image). NEVER ingest a raw statement from `inbox/` or any committed location; if the user dropped one there, move/copy it out first and ensure the raw is not committed.
+   - **Statement** — a **local file path** the user points you at (PDF/CSV/image). NEVER ingest a raw statement from any committed location; if the user put one there, move/copy it out first and ensure the raw is not committed.
 4. **Parse → normalized records** (columns per the README schema):
    - **Verbal:** extract `date` (default today), `amount`, `direction` (infer; ask if ambiguous), `counterparty`, `account` (ask if unknown), `note`. No `ext_id`. `status: pending`. Set `owner` from the account→owner map; if the account isn't mapped, ask whose it is and append the mapping.
    - **Receipt:** vision-read merchant, date, total, currency, the card last-4, and any invoice/order number (`ext_id`). Copy the original image to `finances/receipts/<id>-<slug>.<ext>`; set `source: receipt:<filename>`. **Set `status: pending`** — a receipt is our capture, not statement-confirmed; rule 4 flips it to `cleared` when the bank line lands. Set `owner` from the account→owner map (card last-4 → owner); if unmapped, ask and append the mapping. (If the image exposes a full card number, do NOT store it — keep the row only, note redaction.)

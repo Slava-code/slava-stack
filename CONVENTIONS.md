@@ -3,9 +3,12 @@
 The rulebook. How content is structured, how it grows, how skills enforce discipline. Read once; cite from skills and files rather than re-stating.
 
 Sibling documents:
-- [`CLAUDE.md`](CLAUDE.md) — T0 boot anchor for any agent landing in this repo
-- [`AGENT-GUIDE.md`](AGENT-GUIDE.md) — T1 routing table: "where does X go?"
-- [`INDEX.md`](INDEX.md) — T1 auto-generated one-line index per top-level folder; each folder has its own `INDEX.md` listing entries
+- [`CLAUDE.md`](CLAUDE.md) — short always-loaded entry file for any agent landing in this repo; imports the two files below
+- [`STATE.md`](STATE.md) — always-loaded current truth about the project; update it whenever an outcome, number, price or status changes
+- [`ALIASES.md`](ALIASES.md) — always-loaded shorthand → canonical name → hub file
+- [`.claude/rules/`](.claude/rules/) — retrieval, writing, drafting and research-framing rules (some always loaded, some path-scoped)
+- [`AGENT-GUIDE.md`](AGENT-GUIDE.md) — routing table: "where does X go?"
+- [`INDEX.md`](INDEX.md) — auto-generated one-line index per top-level folder; each folder has its own `INDEX.md` listing entries
 - [`GLOSSARY.md`](GLOSSARY.md) — vocabulary used across this KB and the external patterns it borrows from
 - [`LIMITS.md`](LIMITS.md) — what this KB deliberately does not try to capture
 - [`READING-GUIDES.md`](READING-GUIDES.md) — per-persona entry paths
@@ -45,7 +48,7 @@ To rename: edit `schema/kb-schema.yaml` §`enums.product`, then update any exist
 | [`brainstorming/`](brainstorming/) | Exploratory thought processes — options weighed, half-formed ideas, train of thought. | On explicit ask to "save this brainstorm" |
 | [`strategy/`](strategy/) | Crystallized decisions on GTM, positioning, pricing, fundraising, partnerships. Distinct from brainstorming: strategy is settled, brainstorming is open. | When a strategic choice has been made and should be recorded |
 | [`competitions/`](competitions/) | External competitions / multi-round programs we enter. Entity-folder per program (`<slug>/`) holding logs, snapshots, forms, correspondence, round results. Distinct from `strategy/` (reusable positioning not bound to one program). | When entering/submitting to a program or logging a round |
-| [`decisions/`](decisions/) | One file per architectural or strategic decision. Company-level record — scannable via `git log` + catalog. | After a decision is resolved and commits a direction |
+| [`decisions/`](decisions/) | One file per architectural or strategic decision. Company-level record — scannable via `git log` + `decisions/INDEX.md`. | After a decision is resolved and commits a direction |
 | [`questions/`](questions/) | Lightweight open questions. Promoted to `research-dispatches/` when formalized. | On demand — "add this to questions" |
 | [`research-dispatches/`](research-dispatches/) | Formal: hypothesis → prior → findings → recommendation. Re-opens appended as dated `## Update` sections. | When asked to research a specific question |
 | [`experiments/`](experiments/) | What we tried, measured, learned. Distinct from benchmarks which hold the spec. | After running an experiment |
@@ -56,18 +59,17 @@ To rename: edit `schema/kb-schema.yaml` §`enums.product`, then update any exist
 | [`concepts/`](concepts/) | Meta-topics spanning multiple sources. One folder per concept: `README.md` (research digest, `type: concept`) + `study-log.md` (`type: study-log`). | On explicit ask — `/study <concept>` |
 | [`discovery/`](discovery/) | Customer / prospect calls, VC interviews, pilot feedback. Entity-folder pattern for firms that recur. | After a call or interview |
 | [`advisors/`](advisors/) | Academic + advisor outreach: professor profiles, email drafts, collaboration angles, meeting notes. Entity-folder pattern default. | When researching or contacting an advisor |
-| [`meetings/`](meetings/) | Verbatim meeting/call records (any counterparty) — digest on top, transcript collapsed below. Load-bearing extracts propagate to `todos/`/`strategy/`/`advisors/`. | Via `/meeting` — whenever a transcript/notes exist |
+| [`meetings/`](meetings/) | Meeting/call notes (any counterparty); the verbatim transcript is its own file in `raw/transcripts/`, and the notes link to its lines as `[T:NN](../raw/transcripts/<file>.md#LNN)`. Load-bearing extracts propagate to `todos/`/`strategy/`/`advisors/`. | Via `/meeting` — whenever a transcript/notes exist |
 | [`traction/`](traction/) | Dated metric snapshots — corpus stats, customer pipeline, qualitative signals. | On explicit ask |
 | [`finances/`](finances/) | Cash-flow tracking — append-only `ledger.csv` (one row per transaction), redacted statement snapshots, stored receipts, generated summaries. Structured data, not prose. | Via `/finance` (ingest) + `/financial-summary` |
-| [`inbox/`](inbox/) | Queue of untriaged drops — URLs, notes, screenshots, topics-to-research. Processed one at a time by `/kb-process-inbox`. | **Unprompted** via `/drop` skill or `kbdrop` CLI |
-| [`tools/`](tools/) | Bookmark-class entries — utility URLs, GPTs, reference docs to find/reuse later. Distinct from `sources/` (digest) and `inbox/` (temp). | **Unprompted** — whenever user shares a useful tool/URL |
+| [`tools/`](tools/) | Bookmark-class entries — utility URLs, GPTs, reference docs to find/reuse later. Distinct from `sources/` (digest). | **Unprompted** — whenever user shares a useful tool/URL |
 | [`todos/`](todos/) | Tasks, events, deadlines. Completed items move to `todos/completed/`. | On explicit ask — `/add-todo` |
 | [`archive/`](archive/) | Preserved-but-retired content. Never deleted; history is the point. | On explicit ask — `/kb-archive` |
 | [`runs/`](runs/) | KB maintenance runs — audits, syntheses, migrations. Also holds `.lock` for single-writer coordination. | By skills themselves (audit, synthesize, etc.) |
 | [`schema/`](schema/) | Machine-readable schema + per-type templates. Source of truth for what each file type must contain. | When the schema evolves |
-| [`scripts/`](scripts/) | Validation + helper scripts (`kb-lint.py`, `kb-drop.sh`, `install-hooks.sh`). | When tooling evolves |
+| [`scripts/`](scripts/) | Validation + helper scripts (`kb-lint.py`, `install-hooks.sh`). | When tooling evolves |
 
-**`sources/`, `inbox/`, and `tools/` are the only folders written unprompted.** Everything else is write-on-demand.
+**`sources/` and `tools/` are the only folders written unprompted.** Everything else is write-on-demand.
 
 ---
 
@@ -78,7 +80,6 @@ Dated files sort chronologically in a flat `ls`:
 - Flat file: `<folder>/YYYY-MM-DD-<slug>.md` — lowercase, hyphenated
 - Entity folder: `<folder>/<entity-slug>/README.md` + `<YYYY-MM-DD>-<event>.md` dated children — used when the subject is a living thing (competitor, advisor, customer firm) accumulating evidence over time. Promote from flat file → folder when content exceeds ~300 lines OR a second dated event is added.
 - Todos use deadline date, not creation date: `todos/YYYY-MM-DD-<slug>.md` (deadline = sortable)
-- Inbox drops: `inbox/YYYY-MM-DD-HHMMSS-<slug>.md` (second precision to avoid collisions)
 
 ---
 
@@ -91,7 +92,7 @@ Common fields across types:
 ```yaml
 ---
 title: "Short descriptive title"
-type: brainstorm | synthesis | benchmark-spec | source | research-dispatch | comparison | experiment | decision | question | strategy | interview | lead | advisor | meeting | todo | event | inbox-drop | traction-snapshot | study-log | concept | tool
+type: brainstorm | synthesis | benchmark-spec | source | research-dispatch | comparison | experiment | decision | question | strategy | interview | lead | advisor | meeting | todo | event | traction-snapshot | study-log | concept | tool
 product: track-a | track-b | shared   # rename to your tracks in schema/kb-schema.yaml §enums.product
 strategic-thread: [oss, gtm, fundraising, partnerships, hiring]   # optional multi-value; customize in schema
 source: "URL, conversation date, or origin"
@@ -100,6 +101,7 @@ tags: [relevant, topic, tags]
 status: raw | reviewed | incorporated | superseded | archived
 confidence: high | medium | low | uncertain   # required on synthesis, comparisons, decisions
 supersedes: path/to/prior-doc.md              # optional — explicit pointer to the doc this replaces
+superseded_by: path/to/newer-doc.md           # set on the OLD file in the same commit (lint enforces the pair)
 decision_status: considered | adopted | rejected | borrowed-partial   # comparisons only
 ---
 ```
@@ -153,6 +155,8 @@ Three-tier format. Escalate only as needed.
 | Quote-precise | `[[comparisons/YYYY-MM-DD-competitor-slug]] §"Decision" ("verbatim claim here")` | When the reader must read one verbatim claim |
 
 **No line-range citations** (`[[foo#L42-58]]`). They rot silently.
+
+**One exception: transcript line links.** Meeting notes cite their verbatim transcript as `[T:NN](../raw/transcripts/<file>.md#LNN)`. This is safe because a transcript in `raw/transcripts/` is never edited after filing, so its line numbers cannot drift. Never use line links into any file that gets edited.
 
 **Self-firing artifacts — section headings only.** Hooks, skill files, scripts, and memory entries fire without a human re-reading the target. Line numbers (`file.md:42`, `file.md:129-141`) rot silently: the artifact keeps pointing at what *used to be* that line. Always cite by section heading (`file.md § "Header"`).
 
@@ -233,13 +237,13 @@ Use `/kb-add-folder` to force the justification + creation of `<newfolder>/READM
 
 ## Single-writer rule
 
-**Only one agent performs KB writes at a time.** Any write OR Chrome-extension operation (treated as a write because it consumes the single Chrome session) touches a lock file `runs/.lock` with session ID + timestamp. Other agents check the lock before starting; either wait or abort with "another agent is writing, retry later."
+**Only one agent performs KB writes at a time.** Any write OR browser-tool operation (treated as a write because it consumes the single browser session) touches a lock file `runs/.lock` with session ID + timestamp. Other agents check the lock before starting; either wait or abort with "another agent is writing, retry later."
 
 Manual override: `rm runs/.lock` if a previous session died.
 
 All write-capable skills enforce this as their first/last step. You don't have to think about it.
 
-**LinkedIn / X ingestion** is login-walled — WebFetch cannot see it. Use the Chrome extension via `mcp__claude-in-chrome__*`. Subject to the single-writer rule.
+**LinkedIn / X ingestion** is login-walled — WebFetch cannot see it (a hook denies it). The main agent uses a logged-in browser tool; which one is a per-machine choice (see AGENT-GUIDE.md § "Login-walled content"). Subagents never drive a browser. Subject to the single-writer rule.
 
 ---
 
@@ -251,19 +255,18 @@ One commit per atomic change, not one per session. Use conventional-commit-style
 |---|---|---|
 | `source:` | New external reference | `source: add 2026-04-17-paper-slug` |
 | `comparison:` | Competitor analysis | `comparison: add 2026-04-17-competitor-slug` |
-| `decision:` | Architectural / strategic decision | `decision: add 2026-04-17-gemini-2-5-flash-as-default` |
+| `decision:` | Architectural / strategic decision | `decision: add 2026-04-17-example-model-choice` |
 | `experiment:` | Experiment log | `experiment: log 2026-04-17-corpus-run` |
-| `synthesis:` | Snapshot | `synthesis: snapshot enterprise @ 2026-04-17` |
+| `synthesis:` | Snapshot | `synthesis: snapshot track-a @ 2026-04-17` |
 | `brainstorm:` | Thought-process writeup | `brainstorm: add 2026-04-17-pricing-tiers` |
 | `strategy:` | Crystallized strategy entry | `strategy: add 2026-04-17-oss-positioning` |
 | `interview:` / `discovery:` | Customer/prospect call | `interview: add 2026-04-17-acme-capital-partner-call` |
 | `lead:` | Pre-call prospect event (signup, outreach sent/received) | `lead: add 2026-04-21-prospect-signup` / `lead: contacted 2026-04-23-prospect-slug` |
-| `advisor:` | Advisor profile / event | `advisor: contact 2026-04-17-doan-email-sent` |
+| `advisor:` | Advisor profile / event | `advisor: contact 2026-04-17-example-advisor-email-sent` |
 | `meeting:` | Meeting/call record (+ its propagated extracts) | `meeting: add 2026-04-17-example-advisor-pricing` |
 | `question:` | Open question | `question: add 2026-04-17-embedding-model` / `question: promote 2026-04-17-embedding-model → research-dispatches/` |
-| `research:` | Research dispatch | `research: add 2026-04-17-entity-matching-enterprise` |
-| `inbox:` | Drop or process | `inbox: drop 2026-04-17-090234-linkedin-post` / `inbox: process 2026-04-17-090234 → sources/2026-04-17-paper-slug` |
-| `tool:` | New tool/bookmark | `tool: add 2026-04-27-svgl` |
+| `research:` | Research dispatch | `research: add 2026-04-17-example-research-question` |
+| `tool:` | New tool/bookmark | `tool: add 2026-04-27-example-tool` |
 | `todo:` | Todo/event | `todo: add 2026-04-20-email-advisor` / `todo: complete 2026-04-17-customer-intro` |
 | `finance:` | Ledger ingest or summary | `finance: log 2026-05-30 Example SaaS $40 (saas)` / `finance: reconcile 2026-05` / `finance: summary 2026-05` |
 | `archive:` | Archived file | `archive: 2026-04-10-old-brainstorm` |
@@ -272,11 +275,10 @@ One commit per atomic change, not one per session. Use conventional-commit-style
 | `conventions:` | Rulebook edit | `conventions: add growth rules section` |
 | `schema:` | Schema edit | `schema: add advisor type` |
 | `skill:` | Skill edit | `skill: update add-entry to use schema templates` |
-| `kb:` | Structural / meta change | `kb: rename ideas/ → project-kb/` |
+| `kb:` | Structural / meta change | `kb: add .claude/rules/kb-writes.md` |
 
 **When to commit:**
 - After each new entry (each source, comparison, decision, interview, advisor event, etc.)
-- After each inbox drop (`inbox: drop`), and again when processed (`inbox: process`)
 - After each synthesis snapshot
 - After each description-only edit that regenerates INDEX.md files
 - After each CONVENTIONS / AGENT-GUIDE / GLOSSARY edit
@@ -288,7 +290,7 @@ One commit per atomic change, not one per session. Use conventional-commit-style
 
 All commits end with:
 ```
-Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+Co-Authored-By: <the model that made the commit> <noreply@anthropic.com>
 ```
 
 ---
@@ -298,9 +300,12 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 - Don't write opinionated takes inside `sources/` files (opinions go to brainstorming or comparisons).
 - Don't write synthesis / benchmark / comparison / dispatch / experiment / decision / strategy / advisor / discovery files without being asked. These are explicit milestones, not running commentary.
 - Don't create dated "session" subfolders. Flat-date naming is the structure, except the multi-chapter exception for entities.
-- Don't delete or overwrite old files when superseding. Mark stale in catalog, write a new dated file, set `supersedes:`. History is the point.
+- Don't delete or overwrite old files when superseding. Write a new dated file with `supersedes:`, and back-stamp the old one in the same commit (`status: superseded`, `superseded_by:`, a `> ⚠️ Superseded by [[...]]` banner); lint enforces the pair, and the regenerated INDEX tags the old entry `[superseded]`. History is the point.
+- Don't hand-label a doc "current" or "canonical" (in a description, README, or hub). The label rots the day a newer version lands; the current version is the newest one without `superseded_by:`.
 - Don't supersede, archive, or rewrite a whole doc when only one thread *inside* it got resolved — use an inline **resolution stamp** (see §"Growth rules" → "Resolution stamps"). And don't leave the thread silently resolved either: stamp it so the next reader doesn't re-litigate a settled question.
 - Don't duplicate content that lives authoritatively in a sibling repo (your product code, an ops repo, a separate research repo). Cite out.
 - Don't bypass the single-writer lock.
 - Don't skip the pre-commit lint.
 - Don't batch commits. One logical change per commit; push after each.
+- Don't shorten named entities. Customers, advisors, and companies get their full canonical name on every mention — see `GLOSSARY.md` § "Named entities — canonical names" (e.g. **Example Co**, never bare "Example"). This applies to drafts written for the user (emails, applications, decks) as much as to KB files.
+- Don't leave current truth stale. A write that changes an outcome, status, number or price also updates the matching line in `STATE.md` and its `as-of:` date.

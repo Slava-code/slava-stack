@@ -25,6 +25,6 @@ description: "Digested external references — articles/papers/repos dropped int
 
 **Separate from:**
 - `advisors/` — which is for *outreach-target intel on specific people* (professors, potential advisors). A professor's *paper* belongs here; the *professor* belongs in `advisors/`.
-- LinkedIn / X content — login-walled; use Chrome extension to fetch, respects single-writer rule. See [../AGENT-GUIDE.md](../AGENT-GUIDE.md).
+- LinkedIn / X content — login-walled; WebFetch is blocked (a hook denies it). The main agent fetches with a logged-in browser tool and respects the single-writer rule; subagents never drive a browser and report "could not fetch" instead. See [../AGENT-GUIDE.md](../AGENT-GUIDE.md) §"Login-walled content".
 
 Rules: [../CONVENTIONS.md](../CONVENTIONS.md). Entries: [INDEX.md](INDEX.md) — auto-generated.

@@ -37,6 +37,4 @@ Per [`CONVENTIONS.md`](../../CONVENTIONS.md), per-team-member private files (res
 
 ## Interactions
 
-Dated one-liners auto-appended by `/complete-todo` when a todo with `related: [[team/<your-slug>]]` is marked complete. Most recent at the bottom.
-
-(Empty — no interactions yet.)
+Dated one-liners live in the [`interactions.md`](interactions.md) sidecar, auto-appended by `/complete-todo` when a todo with `related: [[team/<your-slug>]]` is marked complete. Most recent at the bottom. This section only points there.

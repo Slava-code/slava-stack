@@ -24,6 +24,8 @@ Install these first. If any is missing, the later steps will fail.
 
 - **git** + **gh CLI** (`brew install gh`, then `gh auth login` — needs repo access)
 - **Python 3** with **PyYAML** (`python3 -m pip install pyyaml`) — used by lint + generator
+- **gitleaks** (`brew install gitleaks`) — the pre-commit hook scans every commit for secrets and refuses to commit without it
+- **jq** (`brew install jq`) — used by the PreToolUse hooks in `.claude/settings.json`
 - **Claude Code** — desktop app or CLI; skills in this repo are Claude-specific
 
 ### Clone + install hooks
@@ -32,25 +34,10 @@ Install these first. If any is missing, the later steps will fail.
 # Pick any parent directory you like.
 git clone <your fork> project-kb
 cd project-kb
-bash scripts/install-hooks.sh                    # installs pre-commit hook (required)
+bash scripts/install-hooks.sh                    # enables the tracked hooks (required)
 ```
 
-**About the hooks** — git hooks live in `.git/hooks/` which is NOT tracked by git (by design). The committed hooks in `scripts/hooks/` are the source of truth; `install-hooks.sh` copies them into `.git/hooks/` and makes them executable. Each clone needs this step **once**. See "Pre-commit hooks" section below for what they enforce.
-
-**Re-run `install-hooks.sh` whenever** `scripts/hooks/*` is updated upstream (git pull brings in new hook content, but existing `.git/hooks/*` is stale until you re-copy). If `python3 scripts/rebuild-indexes.py --check` exits 0 but your commits don't run it, your local hook is stale.
-
-### Shell aliases (optional but recommended)
-
-```bash
-# Expand ~ so the alias uses an absolute path (the alias won't expand ~ at call time).
-kb_path="$HOME/path/to/project-kb"
-echo "alias kbdrop=\"$kb_path/scripts/kb-drop.sh\"" >> ~/.zshrc
-echo "alias kbprocess=\"$kb_path/scripts/kb-process.sh\"" >> ~/.zshrc
-source ~/.zshrc
-```
-
-- `kbdrop` — quick-capture a drop to inbox from any terminal
-- `kbprocess` — trigger `/kb-process-inbox` via Claude Code (no need to cd + claude manually)
+**About the hooks** — the committed hooks in `scripts/hooks/` are the source of truth. `install-hooks.sh` sets `git config core.hooksPath scripts/hooks`, so git runs the tracked files directly; a `git pull` that updates a hook takes effect immediately, with nothing to re-copy. `core.hooksPath` is per-clone config, so each clone needs this step **once**. See "Pre-commit hooks" section below for what they enforce.
 
 ### Optional: `SOUL.md` for voice + active-user config
 
@@ -67,16 +54,17 @@ Run these — all three should succeed:
 ```bash
 python3 scripts/kb-lint.py              # "kb-lint: OK (N checked, M exempt)"
 python3 scripts/rebuild-indexes.py --check   # exits 0 (no output = clean)
-ls .git/hooks/pre-commit                # file exists, executable
+git config core.hooksPath               # prints "scripts/hooks"
+gitleaks version                        # gitleaks is installed
 ```
 
 If the lint fails with "PyYAML missing" → `python3 -m pip install pyyaml`.
 If `--check` exits 1 → your working tree has edits that haven't been regenerated; run `python3 scripts/rebuild-indexes.py` and commit the regenerated `INDEX.md` files.
-If the hook is absent → re-run `bash scripts/install-hooks.sh`.
+If `core.hooksPath` prints nothing → re-run `bash scripts/install-hooks.sh`.
 
 ### Tell an agent to set this up
 
-If you hand the repo to Claude Code or another agent, the self-contained instruction is: *"Walk the 'First-time setup' in `USER-MANUAL.md`. Ask me before running anything that touches `~/.zshrc` or requires auth (`gh auth login`). Everything else inside the repo is fine to run."*
+If you hand the repo to Claude Code or another agent, the self-contained instruction is: *"Walk the 'First-time setup' in `USER-MANUAL.md`. Ask me before running anything that touches my shell profile or requires auth (`gh auth login`). Everything else inside the repo is fine to run."*
 
 ---
 
@@ -89,49 +77,21 @@ cd project-kb
 claude
 ```
 
-From there, all `/kb*`, `/add-entry`, `/drop`, `/add-todo`, `/write-as`, etc. are available. Running Claude Code from a parent directory won't have them loaded.
+From there, all `/kb*`, `/add-entry`, `/add-todo`, `/meeting`, etc. are available (plus `/write-as` if you installed the optional voice plugin). Running Claude Code from a parent directory won't have them loaded.
 
 ---
 
 ## Daily tasks
 
-### 1. I have a thing to capture but can't think about it now
-
-```bash
-kbdrop "quick thought or research topic"                       # content drop
-kbdrop "https://github.com/foo/bar"                            # URL drop, kind auto-set from host
-kbdrop "https://x.com/a" "https://linkedin.com/b"              # 2 drops, one per arg
-kbdrop "https://x.com/foo — my take: why this matters is ..."  # URL + note on one drop
-```
-
-**Each quoted arg = one drop.** If an arg starts with `http(s)://`, the URL goes into `source_url` and the kind (`x-post`, `linkedin-post`, `url`) is inferred from host. Anything after the URL on the same arg becomes attached commentary. Separate quoted args never cross-bundle — to keep a URL and a note together, put them in the **same** quoted string.
-
-Creates timestamped file(s) in `inbox/`. Auto-commits + pushes.
-
-Or, if you're already inside Claude Code: `/drop <content>`.
-
-### 2. I want to process my inbox
-
-From any terminal:
-
-```bash
-kbprocess                   # drain all drops; groups near-duplicate URLs into one task
-kbprocess <slug>            # process one specific drop
-```
-
-(Equivalent to opening Claude Code inside the KB dir and running `/kb-process-inbox`.)
-
-Walks each group of drops sequentially, each handled by a fresh subagent (keeps context clean). Near-duplicate drops that share a URL are merged into ONE entry — not N redundant ones. LinkedIn / X drops use Chrome extension (respects single-writer rule — never parallel).
-
-### 3. I want to add a specific thing
+### 1. I want to add something — or save it for later
 
 ```
 /add-entry
 ```
 
-Asks you what kind of content (source, comparison, decision, interview, etc.), copies the right template from `schema/templates/`, fills frontmatter with you, commits with a proper prefix, pushes.
+Asks you what kind of content (source, comparison, decision, interview, etc.), copies the right template from `schema/templates/`, fills frontmatter with you, commits with a proper prefix, pushes. Also the path for "save this for later": hand it a URL you haven't read and the agent fetches, classifies, and files it now — there is no deferred-capture queue.
 
-### 4. I have a deadline to remember
+### 2. I have a deadline to remember
 
 ```
 /add-todo
@@ -139,7 +99,7 @@ Asks you what kind of content (source, comparison, decision, interview, etc.), c
 
 Prompts for title, deadline, priority, related entities.
 
-### 5. What do I need to do today?
+### 3. What do I need to do today?
 
 ```
 /deadlines
@@ -147,7 +107,7 @@ Prompts for title, deadline, priority, related entities.
 
 Subagent reads only frontmatter from `todos/*.md` (cheap — doesn't bloat context), returns items due today + overdue + pending. User-invoked — won't surprise-run every session.
 
-### 6. I completed a todo
+### 4. I completed a todo
 
 ```
 /complete-todo <slug>
@@ -155,7 +115,7 @@ Subagent reads only frontmatter from `todos/*.md` (cheap — doesn't bloat conte
 
 Moves file to `todos/completed/`, sets `completed_at`, and auto-appends a one-line entry to each `related:` entity file's timeline (no permission prompt). So `/complete-todo 2026-04-20-email-advisor` adds a line to the matching `advisors/<advisor-slug>/README.md`.
 
-### 7. I want an audit of the KB's health
+### 5. I want an audit of the KB's health
 
 ```
 /kb-audit
@@ -163,7 +123,7 @@ Moves file to `todos/completed/`, sets `completed_at`, and auto-appends a one-li
 
 Checks broken citations, stale `raw` drafts, oversized files, orphan files, `considered` comparisons that never got decided, etc. Writes a report to `runs/YYYY-MM-DD-audit.md`.
 
-### 8. Time for a fresh architecture snapshot
+### 6. Time for a fresh architecture snapshot
 
 ```
 /kb-synthesize track-a
@@ -172,13 +132,13 @@ Checks broken citations, stale `raw` drafts, oversized files, orphan files, `con
 
 Rolls up all material written for the given product track since the last synthesis, writes new dated file with `supersedes:` frontmatter. The generator regenerates INDEX.md; the prior file stays in the folder (with its description) until archived.
 
-### 9. I want to track money in/out
+### 7. I want to track money in/out
 
 ```
 /finance
 ```
 
-Log a transaction into `finances/ledger.csv` — three ways: just tell it ("$40 to Example SaaS today"), hand it a receipt screenshot, or point it at a bank statement file. It parses the fields, categorizes, checks for duplicates / reconciles against what's already logged, and **confirms with you before writing**. Don't `/drop` a raw bank statement (inbox is committed) — point `/finance` at a local file; it redacts account numbers before storing anything.
+Log a transaction into `finances/ledger.csv` — three ways: just tell it ("$40 to Example SaaS today"), hand it a receipt screenshot, or point it at a bank statement file. It parses the fields, categorizes, checks for duplicates / reconciles against what's already logged, and **confirms with you before writing**. Don't commit a raw bank statement — point `/finance` at a local file; it redacts account numbers before storing anything.
 
 For a period summary: `/financial-summary 2026-05` (writes a formatted breakdown to `finances/summaries/`). One-off questions like "how much did we spend on SaaS in May?" need no skill — just ask.
 
@@ -208,7 +168,7 @@ Every commit uses a folder-or-type prefix. See `CONVENTIONS.md` §"Commit conven
 source: add 2026-04-17-<slug>
 advisor: contact 2026-04-17-<slug>-email-sent
 decision: add 2026-04-17-<slug>
-inbox: drop 2026-04-17-090234-<slug>
+todo: add 2026-04-17-<slug>
 ```
 
 `git log --oneline --grep='^advisor:'` filters by prefix.
@@ -217,23 +177,28 @@ inbox: drop 2026-04-17-090234-<slug>
 
 ## Pre-commit hooks
 
-The pre-commit hook (installed via `scripts/install-hooks.sh`) runs two checks on every commit. Either failing blocks the commit.
+The pre-commit hook (enabled via `scripts/install-hooks.sh`) runs three steps on every commit. A failing check blocks the commit.
 
-**1. Frontmatter lint** (`scripts/kb-lint.py`)
+**1. Secret scan** (`gitleaks git --staged`)
+Scans the staged changes with gitleaks' built-in ruleset plus the generic extras in `.gitleaks.toml`. A hit refuses the commit — remove the secret (secrets never belong in the working tree) or, for a genuine false positive, add an allowlist entry to `.gitleaks.toml`. If gitleaks is not installed the hook fails with an install hint; `KB_SKIP_GITLEAKS=1` bypasses the scan (not advised).
+
+**2. Frontmatter + reference lint** (`scripts/kb-lint.py`)
 Validates every staged `.md` file against `schema/kb-schema.yaml`. Catches:
 - Missing required frontmatter fields for the file's `type:`
 - Enum values outside the allowed set (status, product, confidence, etc.)
 - Missing required body sections (e.g. `## Counter-arguments` on synthesis files)
 - `description:` field longer than 120 chars or containing forbidden substrings (`[[`, `](http`)
+- Broken `[[wikilinks]]`, and `supersedes:` pointers whose target lacks `status: superseded` + `superseded_by:`
+- Routing files (CLAUDE.md, AGENT-GUIDE.md, `.claude/rules/`, skill descriptions) pointing at missing paths, missing `/skills` or superseded files
 
 Fix the content or update the schema — don't `--no-verify`. If the lint is wrong, that's a schema bug; edit `schema/kb-schema.yaml` (commit separately with `schema:` prefix).
 
-**2. INDEX auto-sync** (`scripts/rebuild-indexes.py`)
+**3. INDEX auto-sync** (`scripts/rebuild-indexes.py`)
 Rebuilds every auto-generated `INDEX.md` from the current `description:` frontmatter of its folder's children, then stages any that changed — so a stale index can never block a commit. If you edit a file's description, the matching index is regenerated and folded into the same commit automatically; no manual regen step.
 
 This is the one place the hook deliberately *does* auto-write. INDEX.md files are derived purely from frontmatter — nobody hand-reviews them, so re-staging them isn't the "silent write of unreviewed intent" footgun the rest of the hook guards against; it's keeping a derived artifact in sync. Source files are never auto-staged. (It also kills a force-push trap: with the old `--check`-and-reject, a forgotten index meant commit → amend, and since post-commit already pushed, the amend needed a force-push.)
 
-**Stale-hook symptom.** If your commits pass but `rebuild-indexes.py --check` on a fresh clone exits 1, your local `.git/hooks/pre-commit` is out of date with the committed version. Re-run `bash scripts/install-hooks.sh`.
+**Hooks-not-running symptom.** If your commits pass but `rebuild-indexes.py --check` on a fresh clone exits 1, the hooks are not enabled in your clone (`git config core.hooksPath` is empty). Run `bash scripts/install-hooks.sh`.
 
 ---
 
@@ -241,9 +206,8 @@ This is the one place the hook deliberately *does* auto-write. INDEX.md files ar
 
 - **Skills only load when Claude is run from inside the KB directory.** If your slash commands aren't appearing, check your CWD.
 - **Single-writer lock.** Only one agent writes at a time. If a skill says "another agent is writing, retry later," and you're sure nothing else is running, `rm runs/.lock`.
-- **LinkedIn / X content is login-walled.** Chrome extension only. One Chrome task at a time.
+- **LinkedIn / X content is login-walled.** WebFetch is blocked there by a hook; the main agent uses a logged-in browser tool (subagents report "could not fetch"). One browser task at a time, and it takes the lock. See `AGENT-GUIDE.md` § "Login-walled content".
 - **Don't commit by hand in the middle of a skill's work.** Skills handle staging, commit, push as a unit. Manual interleaving breaks the lock contract.
-- **Dropping via `kbdrop` auto-commits.** The history gets noisy — that's expected. Filter with `git log --grep='^inbox:' --invert-grep` if you want a clean view excluding drops.
 
 ---
 
@@ -259,7 +223,7 @@ This is the one place the hook deliberately *does* auto-write. INDEX.md files ar
 
 This repo is a framework, not a finished product. To adopt it, do the following find-and-replace pass once — roughly an hour of mechanical work — and then it's yours.
 
-**Repo + path.** Rename the cloned directory and the GitHub repo to whatever you call your project. Update the `kb_path=` line in the shell-alias snippet above.
+**Repo + path.** Rename the cloned directory and the GitHub repo to whatever you call your project.
 
 **Schema enums** in `schema/kb-schema.yaml`:
 - `enums.product` — replace `track-a / track-b / shared` with your real product tracks. Single-track projects can collapse to one value.

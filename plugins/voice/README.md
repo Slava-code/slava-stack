@@ -32,7 +32,7 @@ To enable the `/write-as` skill in this project:
 
 ## How it works
 
-`/write-as` loads `team/<active-user-slug>/voice/style-card.md` into context, then stitches register-matched prompt→sample pairs from `reverse-prompts.md` as few-shot examples, and produces a single draft in your voice.
+`/write-as` first collects the facts the draft needs from `STATE.md` and the KB files it opens (anything it can't source becomes a `[placeholder]`), then loads `team/<active-user-slug>/voice/style-card.md` into context, then stitches register-matched prompt→sample pairs from `reverse-prompts.md` as few-shot examples, and produces a single draft in your voice.
 
 The voice system is keyed to the active user only — it does not ghostwrite for third parties.
 

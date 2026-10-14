@@ -1,19 +1,21 @@
 ---
 type: folder
-description: "Meeting/call records — digest + collapsed transcript; extracts propagate to todos/, strategy/, advisors/"
+description: "Meeting/call notes citing raw/transcripts/ by line; extracts propagate to todos/, strategy/, advisors/"
 ---
 
 # meetings/
 
-**The verbatim record of meetings and calls, with a digest on top.** Any meeting — advisor, customer, investor, partner, internal — lands here as one file: a short digest agents actually read, then the full transcript collapsed at the bottom. Written by the `/meeting` skill.
+**Notes for every meeting and call, each tied line by line to its verbatim transcript.** Any meeting — advisor, customer, investor, partner, internal — is two files: a notes file here (a short digest agents actually read) and the verbatim transcript in [`../raw/transcripts/`](../raw/transcripts/) under the same slug. Every claim in the notes links to the transcript line it came from, so a reader can check the exact words in one click. Written by the `/meeting` skill.
 
-**Why a format-keyed folder** (vs. routing each meeting by counterparty): a raw transcript is a distinct *artifact* — long, machine-generated, low signal-per-token — and the capture habit is high-frequency. One consistent home + flow beats classifying every meeting by who attended. Counterparty context isn't lost; it's a `related:` wikilink (`[[advisors/<slug>/README]]`), same as everything else in the KB.
+**Two-file rule.** (1) The transcript is saved unedited as `raw/transcripts/YYYY-MM-DD-<slug>.md` (`type: source`, a short header, then the text) and is never edited after filing, so line numbers stay stable. (2) The notes file cites it as `[T:NN](../raw/transcripts/<file>.md#LNN)`. "The full transcript lives in the recording app" is not a record: if the transcript hasn't been pasted yet, ask for it.
+
+**Why a format-keyed folder** (vs. routing each meeting by counterparty): a meeting is a distinct *artifact* — the transcript is long, machine-generated, low signal-per-token — and the capture habit is high-frequency. One consistent home + flow beats classifying every meeting by who attended. Counterparty context isn't lost; it's a `related:` wikilink (`[[advisors/<slug>/README]]`), same as everything else in the KB.
 
 **Distinct from:**
-- `discovery/` (`type: interview`) — customer/prospect-call *digest* keyed to a firm/persona. A customer meeting can keep its interview digest in `discovery/` AND link to the full transcript here.
-- `advisors/<slug>/` (`type: advisor-event`) — advisor *relationship timeline*. An advisor meeting's transcript lives here; the relationship state stays in `advisors/`.
+- `discovery/` (`type: interview`) — customer/prospect-call *digest* keyed to a firm/persona. A customer meeting can keep its interview digest in `discovery/` AND link to the notes here.
+- `advisors/<slug>/` (`type: advisor-event`) — advisor *relationship timeline*. An advisor meeting's notes live here (transcript in `raw/transcripts/`); the relationship state stays in `advisors/`.
 
-Those are relationship-keyed digests; `meetings/` is the format-keyed verbatim record they cite into.
+Those are relationship-keyed digests; `meetings/` is the format-keyed record they cite into.
 
 ## The propagation rule (the point of this folder)
 
@@ -44,7 +46,7 @@ Promote to an entity folder only if one counterparty accumulates many meetings (
 
 ## Body
 
-Mandatory `## TL;DR` (the digest — enforced by lint so a meeting is never a raw dump). Then `## Key points`, `## Action items`, optional `## Strategy notes` / `## Notable quotes` / `## Artifacts shared`, `## Related`, and the collapsed `## Transcript`.
+Mandatory `## TL;DR` (the digest — enforced by lint so a meeting is never a raw dump). Then `## Key points`, `## Action items`, optional `## Strategy notes` / `## Notable quotes` / `## Artifacts shared`, `## Related`, and a one-line `## Transcript` pointing at `raw/transcripts/<same-slug>.md`. Every claim links to its transcript line as `[T:NN](../raw/transcripts/<file>.md#LNN)`.
 
 **Written on:** `/meeting` — whenever you have a transcript or notes to save.
 

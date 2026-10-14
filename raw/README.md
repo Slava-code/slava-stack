@@ -1,18 +1,19 @@
 ---
-name: raw — founder-authored binary assets
-description: Founder-authored binaries (decks, recordings, screenshots) outside classified folders; cite via raw/<sub>/<file>.
+name: raw — primary artifacts
+description: Primary artifacts (transcripts, email threads, decks, renders, papers) with .md sidecars; cite via raw/<sub>/<file>.
 type: folder
 ---
 
 # raw/
 
-Holds founder-authored binary assets that don't fit a classified KB folder type. Currently scoped to:
+Holds primary artifacts the rest of the KB cites — verbatim text (transcripts, email threads) and binaries with `.md` sidecars (decks, papers, event material, renders) — that don't fit a classified KB folder type. Bounded by `LIMITS.md` § "Raw artifacts" (no recordings or multi-MB binaries). Currently scoped to:
 
 - [`pitchdecks/`](pitchdecks/) — pitch deck PDFs + paired markdown sidecars
-- [`contracts/`](contracts/) — signed/draft legal agreements (contractor, NDA, IP-assignment) + paired markdown sidecars
 - [`events/`](events/) — event-planning binaries for events we host (budgets, sponsor decks, run-of-show)
 - [`papers/`](papers/) — original external paper PDFs preserved beside their `sources/` digests
-- [`transcripts/`](transcripts/) — verbatim founder-brainstorm transcripts (primary artifacts)
+- [`transcripts/`](transcripts/) — verbatim meeting, call and brainstorm transcripts (primary artifacts; notes cite them by line)
+- [`emails/`](emails/) — verbatim external email threads, cited by the entity file that owns the relationship
+- [`renders/`](renders/) — HTML/PDF renders of KB docs (snapshots; the `.md` stays canonical)
 
 Cite the canonical file from elsewhere using the relative path appropriate to the citing file (e.g. `[[../raw/pitchdecks/YYYY-MM-DD-pitchdeck.pdf]]`).
 
@@ -28,6 +29,5 @@ This way an agent answering "what does the deck say about TAM?" reads the sideca
 
 ## What this folder is NOT
 
-- Not the inbox queue — see [`../inbox/`](../inbox/)
 - Not for digested external sources — those go in [`../sources/`](../sources/)
 - Not for opinionated takes on our own decks — those go in [`../brainstorming/`](../brainstorming/) or [`../strategy/`](../strategy/)

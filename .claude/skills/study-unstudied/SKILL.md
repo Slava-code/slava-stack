@@ -1,6 +1,6 @@
 ---
 name: study-unstudied
-description: "List project-kb sources and concepts that haven't been studied yet (no matching study-sessions/ file, or empty concept study-log). Live grep — no persisted queue file. Ranked by convergence-tag priority: sources in high-convergence clusters surface first. Use when: user asks 'what haven't we studied?', 'what's the queue?', 'what should I study next?', 'what sources/concepts are outstanding?'. Do NOT use to start a session (use /study). Do NOT use to check progress on a specific source (use /study-status)."
+description: "List sources and concepts with no study log yet, ranked by priority. Use when the user asks: what haven't we studied, what should I study next."
 ---
 
 # /study-unstudied — What hasn't been studied yet

@@ -1,13 +1,13 @@
 ---
 name: meeting
-description: "Save a meeting/call transcript to the project-kb and propagate its contents. Writes meetings/YYYY-MM-DD-<counterparty>-<topic>.md (digest on top via mandatory ## TL;DR, full verbatim transcript collapsed at the bottom), then EXTRACTS action items, strategy/positioning insights, contacts met, and shared artifacts — and propagates each (after confirming with the user) to todos/, strategy/ (or brainstorming/), advisors/, and raw/. Wires bidirectional wikilinks. Respects the single-writer lock; commits + pushes each artifact atomically. Use when the user says: save this meeting, log this call, here's a transcript, record our meeting with X, add this Otter/Granola/Fireflies transcript. Do NOT use for a pure customer-discovery digest with no transcript (use /add-entry interview) or a quick URL capture (use /drop)."
+description: "Save a meeting or call: verbatim transcript to raw/transcripts/, line-linked notes to meetings/ and propagate action items, insights, contacts and outcomes to todos/, advisors/, hubs and STATE.md after confirming each. Use when the user says: save this meeting, log this call, here's a transcript, we met with X, or pastes Otter/Granola/Fireflies notes."
 ---
 
 # /meeting — Save a meeting + propagate its contents
 
 The defining feature of this skill is **propagation**: a meeting file is a *source*, not a destination. `/add-entry` files one thing in one place; `/meeting` files the record AND fans the load-bearing bits out to where they're actionable.
 
-Required reading first time: `CONVENTIONS.md` (esp. §"Single-writer rule", §"Commit convention", §inference discipline), `schema/kb-schema.yaml` (`meeting` type), `meetings/README.md`.
+Required reading first time: `CONVENTIONS.md` (esp. §"Single-writer rule", §"Commit convention", §inference discipline), `schema/kb-schema.yaml` (`meeting` type), `meetings/README.md`, `raw/transcripts/README.md`.
 
 ## Steps
 
@@ -26,7 +26,7 @@ Required reading first time: `CONVENTIONS.md` (esp. §"Single-writer rule", §"C
    - Frontmatter — all required fields (`title, type, product, date_found, participants, counterparty_kind, status`). `status: reviewed`. Write a `description:` (≤120 chars, rule-not-summary, no wikilinks/links). Set `redacted: true` if the meeting is sensitive/NDA and scrub accordingly.
    - **`## TL;DR`** (mandatory — lint enforces it) — 3–5 bullets a future agent reads *instead of* the transcript.
    - `## Key points / advice`, `## Action items` (`[ ]` checkboxes), optional `## Strategy / positioning notes`, `## Notable quotes`, `## Artifacts shared`.
-   - **`## Transcript`** — paste the FULL verbatim transcript inside the collapsed `<details>` block, unedited. This is the record; never trim it for length.
+   - **Transcript = its own file.** First write the FULL verbatim transcript, unedited, to `raw/transcripts/YYYY-MM-DD-<counterparty>-<topic>.md` (frontmatter `type: source`, `status: raw`, a `description:`, a 2-line header naming the meeting file, then the text). Never edit it afterwards: notes cite it by line, so line numbers must stay stable. Then, in the meeting file, link every TL;DR bullet, key point, quote and action item to the transcript line(s) it comes from as `[T:NN](../raw/transcripts/<file>.md#LNN)` (find lines with `grep -n`). `## Transcript` in the meeting file is one line pointing at the transcript file. Commit the transcript with the meeting (`meeting: add ...`).
    - **Inference discipline (load-bearing):** the digest reports what the transcript SAYS, not what it implies. Preserve hedges (`maybe`, `we should ask`, `e.g.`). Attribute advice to the speaker. A timeline/dependency about us is not a commitment by the counterparty. When unsure, quote. (CONVENTIONS §inference discipline.)
 
 4. **Extract propagation candidates.** Read the transcript and the digest you just wrote, and collect candidates in four buckets:
@@ -47,10 +47,13 @@ Required reading first time: `CONVENTIONS.md` (esp. §"Single-writer rule", §"C
    - **Resolution stamps** → edit the host doc in place: `**Resolved YYYY-MM-DD → [[meetings/<file>]]:** <one line>` at the head of the resolved bullet, original text left below. No new file, no `supersedes:` frontmatter, host doc stays live.
    - **Bidirectional wikilinks:** every propagated file links back to `[[meetings/<file>]]`, and the meeting's `## Related` lists each propagated file. Both sides know about the link.
 
+6a. **Run names through `ALIASES.md`.** Transcripts mangle names (Dana Example → "Donna Exampel", ExampleDB → "Example Debbie"). Resolve every person, company and acronym in the digest against the alias table; ask the user about any that match nothing. Add new variants to the table.
+6b. **Keep current truth current.** Ask: does this change what is true now — an outcome, a status, a number, a price, a decision, who someone is? If yes: (a) edit the matching line in `STATE.md` and bump its `as-of:` date; (b) update the hub README if the entity has one (see `ALIASES.md`); (c) add a new row to `ALIASES.md` for any new recurring name, nickname or transcript mis-spelling; (d) put a one-line outcome banner on older files that still read as open. Stage these in the same commit set. Skip silently if nothing changed. For a customer meeting, also append one line to the customer hub (`discovery/<customer>/README.md`). If the meeting closes an open todo, run the `/complete-todo` steps for it.
+
 7. **Regenerate INDEXes + lint.** `python3 scripts/rebuild-indexes.py`, then `python3 scripts/kb-lint.py <changed files>`. Fix content (or amend schema in a separate `schema:` commit) on failure — never `--no-verify`.
 
-8. **Commit + push — one atomic commit per artifact, push after each** (CONVENTIONS §"Commit convention", §"Commit + push together"):
-   - `meeting: add <date>-<slug>` — the meeting file (+ regenerated `meetings/INDEX.md`)
+8. **Commit + push — one atomic commit per artifact, push after each** (CONVENTIONS §"Commit convention"):
+   - `meeting: add <date>-<slug>` — the meeting file + its `raw/transcripts/` file (+ regenerated `INDEX.md` files)
    - `todo: add <deadline>-<slug>` — each todo
    - `strategy: add <date>-<slug>` / `brainstorm: add <date>-<slug>` — each insight doc
    - `advisor: add <slug>` — the stub, if created
@@ -63,6 +66,6 @@ Required reading first time: `CONVENTIONS.md` (esp. §"Single-writer rule", §"C
 
 ## Notes
 
-- **Customer/prospect meetings:** the verbatim transcript still lives in `meetings/`. If the call warrants a discovery digest, ALSO create a `discovery/` `type: interview` file (themes, objections, quotes keyed to the firm) that links to the full transcript here — don't duplicate the transcript into `discovery/`.
-- **Recurring counterparty:** if someone already has an `advisors/<slug>/` or `discovery/<firm>/` folder, still file the transcript in `meetings/` and link it from their folder. Don't move the transcript into the entity folder.
+- **Customer/prospect meetings:** the verbatim transcript still lives in `raw/transcripts/` and the notes in `meetings/`. If the call warrants a discovery digest, ALSO create a `discovery/` `type: interview` file (themes, objections, quotes keyed to the firm) that links to the meeting notes and the transcript — don't duplicate the transcript into `discovery/`.
+- **Recurring counterparty:** if someone already has an `advisors/<slug>/` or `discovery/<firm>/` folder, still file the notes in `meetings/` and the transcript in `raw/transcripts/`, and link them from their folder. Don't move either into the entity folder.
 - **Privacy:** `redacted: true` + scrub for NDA/sensitive meetings before committing. Git history is permanent.

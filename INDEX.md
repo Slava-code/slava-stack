@@ -15,10 +15,9 @@
 - [discovery/](discovery/) — Customer discovery — interviews (post-call quote capture) and leads (pre-call signup/outreach log)
 - [experiments/](experiments/) — What we tried, measured, learned — distinct from benchmarks (spec); results with metrics + next steps
 - [finances/](finances/) — Cash-flow tracking: append-only ledger.csv, redacted statements, receipts; via /finance + /financial-summary
-- [inbox/](inbox/) — Untriaged drop queue — /drop captures go here, /kb-process-inbox drains; never long-lived content
-- [meetings/](meetings/) — Meeting/call records — digest + collapsed transcript; extracts propagate to todos/, strategy/, advisors/
+- [meetings/](meetings/) — Meeting/call notes citing raw/transcripts/ by line; extracts propagate to todos/, strategy/, advisors/
 - [questions/](questions/) — Research questions we don't yet have answers to — promotion path: questions -> dispatches -> decisions
-- [raw/](raw/) — Founder-authored binaries (decks, recordings, screenshots) outside classified folders; cite via raw/<sub>/<file>.
+- [raw/](raw/) — Primary artifacts (transcripts, email threads, decks, renders, papers) with .md sidecars; cite via raw/<sub>/<file>.
 - [research-dispatches/](research-dispatches/) — Formal open research questions — hypothesis + prior constraints + findings + recommendation
 - [runs/](runs/) — KB maintenance runs — audits, syntheses, migrations + single-writer lock; history of KB evolution
 - [sources/](sources/) — Digested external references — articles/papers/repos dropped into chat; factual, not opinionated

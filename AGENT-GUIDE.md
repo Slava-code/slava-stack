@@ -1,4 +1,4 @@
-# Agent Guide — T1 Routing
+# Agent Guide — Routing
 
 How an LLM agent finds its way through this KB. Read after [`CLAUDE.md`](CLAUDE.md), before taking any KB-related action. Does not restate rules — those live in [`CONVENTIONS.md`](CONVENTIONS.md). This is the routing table.
 
@@ -6,15 +6,14 @@ How an LLM agent finds its way through this KB. Read after [`CLAUDE.md`](CLAUDE.
 
 ## Boot order
 
-| Tier | File(s) | When to load |
+| Layer | File(s) | How it loads |
 |---|---|---|
-| T0 | `CLAUDE.md` | Always (auto-loaded when Claude sees the dir) |
-| T1 | root `INDEX.md`, `GLOSSARY.md` | First KB-touching query in a session |
-| T2 | this file, `CONVENTIONS.md`, relevant `<folder>/README.md` + `INDEX.md` | Before editing content in that folder |
-| T2 | `CONVENTIONS.md`, relevant `<folder>/INDEX.md` | Before any write / edit |
-| T3 | specific content files | When cited, queried, or referenced |
+| Always in context | `CLAUDE.md`, which imports `STATE.md` (current truth) and `ALIASES.md` (shorthand → file); unscoped `.claude/rules/*.md` | Automatically, every session and every non-Explore subagent |
+| Injected per prompt | Output of `scripts/kb-prompt-lookup.py` (files matching the prompt) and `scripts/kb-session-status.py` (staleness report, at session start) | Hooks in `.claude/settings.json` |
+| On demand, before writing | this file, `CONVENTIONS.md`, the target folder's `README.md` + `INDEX.md`, `GLOSSARY.md` for vocabulary | You read them |
+| On demand | specific content files | When cited, queried, or referenced |
 
-If you find yourself guessing a rule, you're skipping T2 — stop and read `CONVENTIONS.md`.
+If you find yourself guessing a rule, stop and read `CONVENTIONS.md`.
 
 ---
 
@@ -23,12 +22,17 @@ If you find yourself guessing a rule, you're skipping T2 — stop and read `CONV
 | User brings... | Destination |
 |---|---|
 | A URL, paper, repo, tool | `sources/YYYY-MM-DD-<slug>.md` — factual digest |
-| A URL you haven't analyzed yet | `inbox/YYYY-MM-DD-HHMMSS-<slug>.md` via `/drop` |
 | A useful tool/URL/GPT/reference doc to find again later (not a source to digest) | `tools/YYYY-MM-DD-<slug>.md` |
 | A competitor analysis | `comparisons/YYYY-MM-DD-<slug>.md` (flat) or `comparisons/YYYY-MM-DD-<slug>/` (multi-chapter if >300 lines) |
 | A design/strategy discussion to save | `brainstorming/YYYY-MM-DD-<slug>.md` |
 | A crystallized GTM/positioning/pricing/fundraising choice | `strategy/YYYY-MM-DD-<slug>.md` |
-| Investor blurb, pitch-application copy, elevator pitch, positioning messaging | `strategy/YYYY-MM-DD-<slug>.md` |
+| Reusable positioning: blurb, elevator pitch, messaging not tied to one program | `strategy/YYYY-MM-DD-<slug>.md` |
+| Anything written for one program or project: application answers, logs, forms, briefs, organizer emails, versioned collateral | `competitions/<program-slug>/YYYY-MM-DD-<slug>.md` or the project's hub folder (hub `README.md` states status, outcome and the current version of each doc). Do not pile versioned drafts into `strategy/`. |
+| A new version of an existing doc (`-vN`, `draft-N`) | New file with `supersedes:` pointing at the old one, AND in the same commit stamp the old file `status: superseded` + `superseded_by:` + banner (lint enforces), and update the hub's "current docs" row |
+| A fact that changes what is true now (outcome, status, number, price, decision) | The source file as usual, AND the matching line in `STATE.md` (bump `as-of:`), AND the hub README if one exists |
+| A new recurring name, acronym or nickname (or a transcript's mangled version of one) | A row in `ALIASES.md` pointing at the hub file |
+| A raw artifact: sent/received email, deck PDF, contract, event material | `raw/<kind>/` with a same-name `.md` sidecar (see `raw/README.md`); email threads go to `raw/emails/` |
+| An HTML/PDF render of a KB doc (one-pager, brief) | `raw/renders/YYYY-MM-DD-<slug>.html`, never the repo root |
 | A submission/log/snapshot/form/organizer email for a multi-round competition or program | `competitions/<program-slug>/YYYY-MM-DD-<slug>.md` (entity folder; hub `README.md`). One-shot applications with no rounds can stay in `strategy/`. |
 | A single architectural or strategic decision | `decisions/YYYY-MM-DD-<slug>.md` |
 | An open question (lightweight, pre-formal) | `questions/YYYY-MM-DD-<slug>.md` |
@@ -37,7 +41,7 @@ If you find yourself guessing a rule, you're skipping T2 — stop and read `CONV
 | A benchmark spec | `benchmarks/YYYY-MM-DD-<slug>.md` |
 | An architecture snapshot for a product | `synthesis/YYYY-MM-DD-<product>-architecture.md` |
 | A customer / prospect / stakeholder call | `discovery/<firm-slug>/<YYYY-MM-DD>-<call>.md` (folder default) |
-| A meeting/call transcript to save (any counterparty) | `meetings/YYYY-MM-DD-<counterparty>-<topic>.md` via `/meeting` — digest + collapsed transcript; extracts propagate to `todos/`/`strategy/`/`advisors/`. A customer call can ALSO get a `discovery/` interview digest that links here. |
+| A meeting/call transcript to save (any counterparty) | `meetings/YYYY-MM-DD-<counterparty>-<topic>.md` (notes) + `raw/transcripts/<same-slug>.md` (verbatim) via `/meeting` — notes link to transcript lines; extracts propagate to `todos/`/`strategy/`/`advisors/`. A customer call can ALSO get a `discovery/` interview digest that links here. |
 | Advisor outreach, professor profile, email drafts | `advisors/<person-slug>/<README or dated event>.md` |
 | Team member profile or notes | `team/<person-slug>/<README or dated note>.md` |
 | A task/event with a deadline | `todos/YYYY-MM-DD-<slug>.md` (date = deadline) |
@@ -47,24 +51,23 @@ If you find yourself guessing a rule, you're skipping T2 — stop and read `CONV
 | Deep-study session on a cross-cutting concept | `concepts/<concept-slug>/` folder with `README.md` (type: concept, research digest) + `study-log.md` (type: study-log, checkpoints) — written by `/study` |
 | New content resolves an open thread in an *existing* doc | NOT a new file and NOT a supersede — an inline **resolution stamp** on that doc. See CONVENTIONS §"Growth rules" → "Resolution stamps". Do it in the same lock/commit session as the content that triggered it. |
 
-If the content type is unclear, drop it to `inbox/` via `/drop` and classify later.
+If the content type is unclear, read it first; ask the user if still unclear.
 
 **Source vs tool:** if the URL has facts you'd cite (architecture, customer count, benchmark numbers), it's a `source/`. If it's a utility you'd just use again (an icon library, a GPT, a PDF signer), it's a `tools/`.
 
 ---
 
-## Drop vs add-entry — which door?
+## Adding content — `/add-entry`
 
-The routing table tells you *what folder*. This tells you *which skill*.
+The routing table tells you *what folder*; `/add-entry` is the skill that files it. There is no deferred-capture queue: capture and classification happen in the same step.
 
 | Situation | Use |
 |---|---|
-| You've already read / analyzed the content in this conversation | `/add-entry` — classification is not deferred, you know what it is |
-| User gave you a URL you haven't opened; they're queuing it for later | `/drop` |
-| User said "save this for later" / "I want to come back to this" | `/drop` |
-| Content type is genuinely unclear after reading | `/drop`, let `/kb-process-inbox` classify |
+| You've already read / analyzed the content in this conversation | `/add-entry` — you know what it is |
+| User said "save to KB" / "add this" / "for later" + a URL you haven't opened | `/add-entry` — fetch it now, classify, file it |
+| Content type is genuinely unclear after reading | Ask the user |
 
-**Default bias:** if you just did the work of analyzing something in the chat, skip inbox. Inbox is for *unread* material. Reaching for `/drop` after analysis is the low-friction trap — it looks cheap, but it hides finished work behind a deferred-processing queue.
+"I haven't read it" is a reason to read it, not to postpone it.
 
 ---
 
@@ -87,7 +90,7 @@ If the brainstorm surfaces a sharp, researchable question, that question can gra
 
 Before comparing anything external (competitor, tool, paper, thesis) to your project — in chat OR in a written entry — ground your project's side first. Do not compare against your memory of what the project is; the thesis, GTM, and positioning move faster than any cached summary.
 
-1. **Dispatch subagent(s) to sweep the repo** (Explore-type, read-only) for every file relevant to the comparison axis. Minimum sweep: newest `synthesis/` for the product track, `GLOSSARY.md` product one-liner, `comparisons/INDEX.md`, newest `strategy/*positioning*`, related `decisions/` and `brainstorming/` entries. Widen the sweep to any linked sibling KB when the comparison touches a track that lives there.
+1. **Start from `STATE.md`, then dispatch subagent(s) to sweep the repo** for every file relevant to the comparison axis. Use `general-purpose` subagents, not `Explore`: Explore agents do not load `CLAUDE.md`, `STATE.md` or the rules, so they miss the currency rules. Minimum sweep: newest `synthesis/` for the product track, `comparisons/INDEX.md`, newest `strategy/` and `competitions/` files on the axis, related `decisions/` and `brainstorming/` entries. Widen the sweep to any linked sibling KB when the comparison touches a track that lives there.
 2. **Weight by date — staleness is real.** Every file carries its date in the filename/frontmatter. Follow `supersedes:` chains to the tip; treat anything older than the newest relevant synthesis (or > ~2 months old with no newer sibling) as *potentially stale* and say so when citing it. A confident comparison built on a stale snapshot is worse than a hedged one.
    **The synthesis itself can be the stale artifact.** When `strategy/` or `brainstorming/` files postdate the newest synthesis, the freshest dated file on the comparison axis wins — the synthesis (and the GLOSSARY one-liner derived from it) is the staleness *reference*, not the truth anchor. If the sweep finds this drift, flag it and suggest `/kb-synthesize`. (Example: a synthesis from two months ago still describes the old positioning while newer `strategy/` files record a pivot — the newer files win.)
 3. **Cite the grounding.** The comparison (chat answer or `comparisons/` / `brainstorming/` entry) names which KB files anchored the project side, with their dates, so the next reader can re-check freshness.
@@ -99,13 +102,16 @@ Before comparing anything external (competitor, tool, paper, thesis) to your pro
 | User asks... | Primary file / folder |
 |---|---|
 | "What's our current architecture?" | Most recent `synthesis/` file for the `product:` asked about |
-| "What's our positioning?" | `comparisons/2026-03-17-competitive-landscape.md` + most recent `strategy/*positioning*` |
+| "Where are we / what's true now?" (stage, customer status, traction, pricing, program outcomes) | `STATE.md` (already in context), then the source file each line points to |
+| A person, company, acronym or nickname | `ALIASES.md` (already in context) → the hub file in the row |
+| "What's our positioning?" | `STATE.md` § "Product" + newest `synthesis/` for the product + newest file in `comparisons/` on the axis (e.g. the demo `comparisons/2026-01-15-example-vector-db.md`) |
+| "What numbers can we cite?" | Newest file in `traction/`; tag each figure by evidence type |
+| "What did we submit / which version is current?" | The program or project hub README (`competitions/<slug>/README.md`); the current doc is the newest one without `superseded_by:`; never infer from `status: raw` |
 | "Why did we choose X?" | Search `decisions/` by slug; fall back to `git log --all --full-history --grep='<keyword>'` |
 | "What's open right now?" | `questions/` + `research-dispatches/` with `status: raw` or `reviewed`; also `todos/` with `status: pending` |
 | "Who are the competitors?" | `comparisons/INDEX.md` — one-liner per competitor; open the files whose description_status matters |
 | "Who are the advisors?" | `advisors/INDEX.md` then folders per advisor |
-| "What did we discuss in the meeting with X?" | `meetings/INDEX.md` — one-liner per meeting; open the file for digest + transcript |
-| "What's in the inbox?" | `inbox/` directory listing; run `/kb-process-inbox` to drain |
+| "What did we discuss in the meeting with X?" | `meetings/INDEX.md` — one-liner per meeting; open the file for notes; its `T:NN` links open the transcript lines in `raw/transcripts/` |
 | "What's due today?" | `/deadlines` (reads only frontmatter via subagent) |
 | "What are we giving up by choosing X?" | Each `decisions/*.md` has a required `## What we're giving up` section |
 | "What have we tried and measured?" | `experiments/` |
@@ -123,20 +129,18 @@ All skills live at `.claude/skills/` inside this repo. Activated when Claude is 
 |---|---|
 | `/kb` | Unsure which skill fits. Lists every KB skill with one-line purpose. |
 | `/add-entry` | Adding any content type (source, comparison, decision, etc.). Classifies, copies template, fills frontmatter, commits, pushes. |
-| `/drop` | Quick-capture to inbox. Content or URL; no classification. |
-| `/kb-process-inbox` | Drain the inbox queue. Each drop handled by a fresh subagent. |
 | `/kb-audit` | Freshness + consistency check. Broken citations, stale `raw` statuses, oversized files, etc. Writes report to `runs/`. |
 | `/kb-synthesize <product>` | Roll up a new architecture snapshot for one of the configured product tracks (e.g. `track-a`, `track-b`, `shared`). |
 | `/kb-archive <path>` | Move a fully-superseded file to `archive/`. |
 | `/kb-add-folder` | Add a new top-level folder. Forces justification against CONVENTIONS growth rules. |
 | `/kb-promote <path>` | Move content along the promotion path (question → dispatch → decision → synthesis). Handles backlinks. |
 | `/add-todo` | Add a todo / event / meeting with deadline. |
-| `/meeting` | Save a meeting/call transcript → `meetings/` (digest + collapsed transcript), then extract action items / strategy insights / contacts / shared artifacts and propagate them to `todos/`/`strategy/`/`advisors/`/`raw/` — confirming each before writing. |
+| `/meeting` | Save a meeting/call transcript → `meetings/` (notes) + `raw/transcripts/` (verbatim, cited by line), then extract action items / strategy insights / contacts / shared artifacts and propagate them to `todos/`/`strategy/`/`advisors/`/`raw/` — confirming each before writing. |
 | `/finance` | Ingest a transaction into `finances/ledger.csv`. Verbal / receipt / statement. Parses, categorizes, dedup + reconciles, confirms everything, appends/enriches, redacts statements, commits + pushes. |
 | `/financial-summary <period>` | Generate a persisted, formatted cash-flow summary for a month/quarter/range → `finances/summaries/`. One-off lookups need no skill — read the ledger and answer in chat. |
 | `/complete-todo <slug>` | Mark a todo complete. Moves to `todos/completed/`, auto-appends one-line entry to each `related:` entity's timeline. |
 | `/deadlines` | List today-due + overdue pending. Subagent reads frontmatter only. User-invoked. Agent may auto-invoke if relevant to the task. |
-| `/write-as <instruction>` | Draft text in the active user's voice (email, X post, LinkedIn, strategy note). Resolves active user via SOUL.md, loads `team/<slug>/voice/style-card.md`, stitches register-matched reverse-prompt pairs, produces a single draft. Read-only. Agent auto-invokes when user says "draft this as me" / "write [X] in my voice" / "reply to this email for me". |
+| `/write-as <instruction>` | **Optional plugin** — only if `plugins/voice/` is installed (not shipped in `.claude/skills/`). Draft text in the active user's voice (email, X post, LinkedIn, strategy note). Resolves active user via SOUL.md, loads `team/<slug>/voice/style-card.md`, stitches register-matched reverse-prompt pairs, produces a single draft. Read-only. Agent auto-invokes when user says "draft this as me" / "write [X] in my voice" / "reply to this email for me". |
 | `/study <source|concept|next>` | Start or resume a deep-study session. Appends one H2 checkpoint at session end to `study-sessions/<source-filename>.md` or `concepts/<slug>/study-log.md`. Bidirectional cross-refs. `--mode text|voice`. Promotion of `[?question]` / `[?decision]` tags is user-prompted only. |
 | `/study-status <source|concept>` | Read-only resume query — latest checkpoint date, next-session intent, open threads, recent context. No lock, no session. |
 | `/study-unstudied` | Live grep: sources without study-logs + empty concept logs. Ranked by brainstorm convergence-tag priority. No persisted queue. |
@@ -145,7 +149,7 @@ All skills live at `.claude/skills/` inside this repo. Activated when Claude is 
 
 ## Single-writer rule
 
-**Only one agent writes to the KB at a time.** Any write OR Chrome-extension operation respects `runs/.lock`.
+**Only one agent writes to the KB at a time.** Any write OR browser-tool operation respects `runs/.lock`.
 
 Before a write:
 1. Check `runs/.lock` existence
@@ -161,11 +165,11 @@ Skills enforce this automatically. Don't bypass.
 
 ## Special fetchers
 
-WebFetch is the default URL fetcher, but several hostnames need a dedicated tool to get past abstract-page-only or login-walled views. The digesting subagent (in `/kb-process-inbox` or `/add-entry`) is **required** to call the matching fetcher before writing the source entry, and to cite `runs/fetches/<slug>.txt` in the entry's `## Fetched from` section so future readers can verify provenance.
+WebFetch is the default URL fetcher, but several hostnames need a dedicated tool to get past abstract-page-only or login-walled views. The digesting agent (in `/add-entry`) is **required** to call the matching fetcher before writing the source entry, and to cite `runs/fetches/<slug>.txt` in the entry's `## Fetched from` section so future readers can verify provenance.
 
 | Hostname pattern | Fetcher | Subject to lock? | What you get |
 |---|---|---|---|
-| `linkedin.com`, `x.com`, `twitter.com` | Chrome extension via `mcp__claude-in-chrome__*` | **yes** (single Chrome session) | rendered post text + author handle + thread context |
+| `linkedin.com`, `x.com`, `twitter.com` | A logged-in browser tool, main agent only (which one is a per-machine choice: follow the user-level `~/.claude/CLAUDE.md` if it names one, otherwise `mcp__claude-in-chrome__*`). Subagents never drive a browser. | **yes** (single browser session) | rendered post text + author handle + thread context |
 | `youtube.com`, `youtu.be` | `scripts/yt-fetch.sh <url> --out runs/fetches/<slug>.txt` | no | metadata + auto/manual transcript |
 | `arxiv.org` | `scripts/arxiv-fetch.sh <url-or-id> --out runs/fetches/<slug>.txt` | no | abstract-page metadata + full PDF text (`pdftotext -layout`) |
 | `github.com` | `scripts/github-deep-fetch.sh <url-or-owner/repo> --out runs/fetches/<slug>.txt` (pass 1) + targeted `gh api` reads (pass 2) | no | repo metadata + README + tree + manifests; pass 2 reads code |
@@ -181,16 +185,15 @@ WebFetch is the default URL fetcher, but several hostnames need a dedicated tool
 
 This kills the historical "HTML capture" ambiguity — readers can open the raw fetch and verify what was available to the digester.
 
-### Chrome extension (login-walled content)
+### Login-walled content
 
-Treat any Chrome operation as a write. **Never run two Chrome tasks in parallel** — the extension is a single-session resource. Flow:
+WebFetch cannot see x.com / twitter.com / linkedin.com (a `PreToolUse` hook in `.claude/settings.json` denies it). Use a logged-in browser tool from the main agent; subagents never drive a browser and report "could not fetch" instead. Treat any browser operation as a write. **Never run two browser tasks in parallel** — the session is a single-user resource. Flow:
 
-1. User drops the URL via `/drop`
-2. `/kb-process-inbox` picks it up
-3. Subagent acquires `runs/.lock`
-4. Subagent uses Chrome extension to open the post, capture content
-5. Subagent writes `sources/YYYY-MM-DD-<slug>.md`, commits, pushes
-6. Subagent releases lock, deletes inbox drop
+1. User shares the URL and asks to add it (`/add-entry`)
+2. Agent acquires `runs/.lock`
+3. Agent uses the browser tool to open the post, capture content
+4. Agent writes `sources/YYYY-MM-DD-<slug>.md`, commits, pushes
+5. Agent releases lock
 
 ### `scripts/yt-fetch.sh` — YouTube
 

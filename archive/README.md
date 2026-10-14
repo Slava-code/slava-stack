@@ -5,7 +5,7 @@ description: "Fully-superseded content preserved for history — supersedes chai
 
 # archive/
 
-**Preserved-but-retired content.** When a file is fully superseded AND uncited for 3+ months AND no active decision references it, `/kb-archive` moves it here. Catalog entry stays with `**(archived YYYY-MM-DD)**` marker so history is visible.
+**Preserved-but-retired content.** When a file is fully superseded AND uncited for 3+ months AND no active decision references it, `/kb-archive` moves it here. The regenerated INDEX drops it from its old folder; inbound wikilinks keep resolving because `kb-lint` falls back to a same-basename file under `archive/`.
 
 **Never delete.** Git preserves history on its own, but explicit archival signals *we intentionally retired this*, which a raw git log doesn't convey.
 

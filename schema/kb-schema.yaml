@@ -58,9 +58,6 @@ enums:
   status_team:
     - active
     - inactive
-  status_inbox:
-    - inbox
-    - processed
   status_study:
     - ongoing
     - paused
@@ -90,20 +87,6 @@ enums:
     - validation
     - pilot
     - paying
-  inbox_source_kind:
-    - url
-    - email
-    - note
-    - x-post
-    - linkedin-post
-    - research-topic
-    - screenshot
-  captured_from:
-    - mobile
-    - desktop
-    - claude-chat
-    - terminal
-    - manual
   tool_kind:
     - web-app
     - gpt
@@ -165,6 +148,8 @@ lint_exempt_patterns:
   - "USER-MANUAL.md"
   - "README.md"       # repo-root README; folder READMEs validate as type: folder
   - "SOUL.md"         # gitignored local user config
+  - "STATE.md"        # always-loaded current-truth card (imported by CLAUDE.md)
+  - "ALIASES.md"      # always-loaded shorthand table (imported by CLAUDE.md)
   # auto-generated listings (written by rebuild-indexes.py)
   - "**/INDEX.md"
   # dirs/files not content (generator + lint both skip)
@@ -176,7 +161,8 @@ lint_exempt_patterns:
   - ".claude/**"
   - "plugins"
   - "plugins/**"
-  - "inbox/INDEX.md"
+  # gitignored per-member private notes: local-only, own ad-hoc types
+  - "team/*/private/**"
 
 # ───────────────────────────────────────────────────────────────
 # Global rules for the `description:` frontmatter field
@@ -199,7 +185,7 @@ description_rules:
 # into the AUTOGEN-marked block of each target; kb-lint rejects drift
 # (target block must match source, or commit fails with a fix hint).
 # This generalizes the "generated, not hand-maintained" rule that
-# already governs INDEX.md, applied to the always-loaded T1 layer.
+# already governs INDEX.md, applied to GLOSSARY.md and other read-first files.
 # Source of truth is your newest synthesis/ snapshot — edit the
 # `one_liner:` there and re-run the script; do not hand-edit targets.
 # ───────────────────────────────────────────────────────────────
@@ -276,7 +262,7 @@ types:
     # tallies tags across brainstorms; when a tag hits ≥3 occurrences it is
     # surfaced by /kb-audit as a promotion candidate (→ questions/ or
     # research-dispatches/). Emit a tag when a brainstorm notes "this is the
-    # Nth time X has surfaced" — see schema/processor-brief.md §4.
+    # Nth time X has surfaced".
 
   research-dispatch:
     folder: research-dispatches/
@@ -317,11 +303,12 @@ types:
     # items, strategy insights, contacts, shared artifacts) propagate OUT to
     # todos/, strategy/, advisors/, raw/ via the /meeting skill. Digest-on-top
     # (`## TL;DR`) is mandatory so a meeting file is never a raw dump; the
-    # verbatim transcript lives collapsed at the bottom. Counterparties are
-    # linked via `related:` wikilinks, NOT by folder — so a meeting with an
-    # advisor stays cross-referenced with advisors/<slug>/ rather than splitting
-    # entity context. Distinct from `interview` (discovery/, customer-call
-    # digest keyed to a firm/persona) and `advisor-event` (advisors/<slug>/,
+    # verbatim transcript is its own file in raw/transcripts/ (never edited
+    # after filing) and the meeting notes cite it by line ([T:NN](...#LNN)).
+    # Counterparties are linked via `related:` wikilinks, NOT by folder — so a
+    # meeting with an advisor stays cross-referenced with advisors/<slug>/
+    # rather than splitting entity context. Distinct from `interview`
+    # (discovery/, customer-call digest keyed to a firm/persona) and `advisor-event` (advisors/<slug>/,
     # relationship timeline): those are relationship-keyed digests; this is the
     # format-keyed verbatim record any of them can cite into.
     folder: meetings/
@@ -423,18 +410,6 @@ types:
       related: {type: list}
       kind: {enum: [task, event, meeting]}
     status_values: status_todo
-    body_required_sections: []
-
-  inbox-drop:
-    folder: inbox/
-    required: [type, source_kind, captured_at, captured_from, status]
-    optional: [source_url, tags]
-    extra_fields:
-      source_kind: {enum: inbox_source_kind}
-      captured_at: {type: datetime}
-      captured_from: {enum: captured_from}
-      source_url: {type: string}
-    status_values: status_inbox
     body_required_sections: []
 
   tool:

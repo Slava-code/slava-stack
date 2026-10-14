@@ -1,6 +1,6 @@
 ---
 name: add-todo
-description: "Add a todo / event / meeting with a deadline to the project-kb. Creates todos/YYYY-MM-DD-<slug>.md (filename date = deadline, so `ls todos/` sorts by upcoming). Frontmatter: type: todo, deadline, status: pending, priority, related entities (wikilinks to advisors/firms/decisions). Use when user says: add todo, remind me to X by Y, schedule event, log upcoming meeting, I need to do Z."
+description: "Add a todo, event or meeting with a deadline to todos/. Use when the user says: add todo, remind me to X by Y, schedule, log an upcoming meeting, I need to do Z. Filename date = deadline; links related people, firms and decisions."
 ---
 
 # /add-todo

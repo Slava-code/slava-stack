@@ -22,7 +22,7 @@ Before contributing: [`CONVENTIONS.md`](CONVENTIONS.md).
 
 You want to understand positioning, competitive landscape, and traction. Read in this order:
 
-1. [`CLAUDE.md`](CLAUDE.md) — 2 min.
+1. [`STATE.md`](STATE.md) — 1 min. What is true right now, each line pointing at its source.
 2. [`comparisons/INDEX.md`](comparisons/) — competitive landscape entries (open the positioning file + any analyses of the best-funded competitors).
 3. Most recent file in [`synthesis/`](synthesis/) — what the product actually is, where it stands.
 4. [`strategy/`](strategy/) — GTM, pricing, fundraising narrative as it crystallizes.
@@ -46,12 +46,13 @@ You want to understand whether the project is technically serious and how your e
 Different focus from "new engineer" — you may own product, go-to-market, or ops rather than core code.
 
 1. [`USER-MANUAL.md`](USER-MANUAL.md) — 5 min. How to USE this KB.
-2. [`team/INDEX.md`](team/INDEX.md) — who's here.
-3. Most recent file in [`synthesis/`](synthesis/) — product state.
-4. [`comparisons/INDEX.md`](comparisons/) — positioning + competitor reads.
-5. [`strategy/`](strategy/) — GTM / pricing / fundraising as it fills.
-6. [`discovery/`](discovery/) — customer conversations as they accumulate.
-7. [`advisors/`](advisors/) — who's being cultivated externally.
+2. [`STATE.md`](STATE.md) — 1 min. What is true right now; [`ALIASES.md`](ALIASES.md) decodes the team's shorthand.
+3. [`team/INDEX.md`](team/INDEX.md) — who's here.
+4. Most recent file in [`synthesis/`](synthesis/) — product state.
+5. [`comparisons/INDEX.md`](comparisons/) — positioning + competitor reads.
+6. [`strategy/`](strategy/) — GTM / pricing / fundraising as it fills.
+7. [`discovery/`](discovery/) — customer conversations as they accumulate.
+8. [`advisors/`](advisors/) — who's being cultivated externally.
 
 Before contributing: [`CONVENTIONS.md`](CONVENTIONS.md) and [`AGENT-GUIDE.md`](AGENT-GUIDE.md).
 
@@ -59,4 +60,4 @@ Before contributing: [`CONVENTIONS.md`](CONVENTIONS.md) and [`AGENT-GUIDE.md`](A
 
 ## LLM agent booting up
 
-See [`CLAUDE.md`](CLAUDE.md) §"Progressive boot." Then [`AGENT-GUIDE.md`](AGENT-GUIDE.md). Don't guess rules — the rulebook is [`CONVENTIONS.md`](CONVENTIONS.md).
+[`CLAUDE.md`](CLAUDE.md) loads automatically and imports [`STATE.md`](STATE.md) (current truth) and [`ALIASES.md`](ALIASES.md) (shorthand → file); the rules in `.claude/rules/` load with it. Answer from those plus the files the prompt hook lists. Before writing, read [`AGENT-GUIDE.md`](AGENT-GUIDE.md) and the rulebook, [`CONVENTIONS.md`](CONVENTIONS.md). Don't guess rules.

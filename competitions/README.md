@@ -19,6 +19,8 @@ competitions/example-program/
 └── submission-form/                           the submission form's field reference (type: tool)
 ```
 
+**The hub README is current truth for the program.** It states the stage, status and outcome, and has a "current docs" list naming the current version of each artifact (application, brief, deck). Anything written for this one program — application answers, briefs, organizer emails, versioned collateral — lives in the program folder, not in `strategy/`. A new version of a doc is a new dated file with `supersedes:`; in the same commit back-stamp the old one (`status: superseded`, `superseded_by:`, banner) and update the hub's current-docs row. Never hand-label a file "current" or "final" in its description. When the program ends, put the outcome on the hub and on `STATE.md`.
+
 Distinct from:
 - `strategy/` — reusable positioning / pitch copy that isn't bound to one program (investor blurb, application answers, elevator pitch). A program-specific snapshot or submission lives here; cross-program positioning stays in `strategy/`.
 - `sources/` — external *material* we digest (papers, articles). A program's public rules page can be a `source`; the *program* and our submissions to it live here.

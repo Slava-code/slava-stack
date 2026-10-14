@@ -13,7 +13,7 @@ Architecture snapshots. **One per product track, concurrent.** Most recent dated
 
 **Frontmatter required:** `type: synthesis`, `product:`, `supersedes:` (points at prior synthesis for this product), `confidence:`.
 
-**Rollforward rule:** when writing a new synthesis for a product, read the prior one + every brainstorm / dispatch / experiment / decision written for that product since. Consolidate. Set `supersedes:`. Mark the prior entry `**(superseded)**` in the root [CATALOG](../CATALOG.md).
+**Rollforward rule:** when writing a new synthesis for a product, read the prior one + every brainstorm / dispatch / experiment / decision written for that product since. Consolidate. Set `supersedes:`. Back-stamp the prior snapshot in the same commit (`status: superseded`, `superseded_by:` pointing at the new file, and a one-line banner at the top) so [INDEX.md](INDEX.md) and readers see it is no longer current.
 
 **Written on:** explicit ask — "synthesize" / "snapshot the architecture." Never unprompted.
 

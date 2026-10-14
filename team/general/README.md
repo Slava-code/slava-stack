@@ -11,8 +11,7 @@ No frontmatter — sidecar / reference file, not a content entry.
 
 ## Pitch materials
 
-- Pitch deck (current canonical): [`../../raw/pitchdecks/2026-01-15-pitchdeck.pdf`](../../raw/pitchdecks/2026-01-15-pitchdeck.pdf) — DEMO example slug, replace once real. Slide-by-slide sidecar: [`../../raw/pitchdecks/2026-01-15-pitchdeck.md`](../../raw/pitchdecks/2026-01-15-pitchdeck.md)
-- Pitch deck (prior, superseded): keep older revisions listed here with their sidecars, newest first
+- Pitch deck: the newest sidecar in [`../../raw/pitchdecks/`](../../raw/pitchdecks/) without `superseded_by:` is the current one. Don't hand-label a deck "current canonical" here — the label rots the day a newer deck lands. Older decks stay in that folder, back-stamped `status: superseded`.
 
 `raw/` at repo root holds founder-authored binary assets (decks, recordings, screenshots) outside the classified KB folders. Pitch deck PDFs live in `raw/pitchdecks/` paired with same-basename `.md` sidecars — read the sidecar for slide-by-slide content without opening the PDF. See [`../../raw/README.md`](../../raw/README.md) for the convention.
 

@@ -59,11 +59,4 @@ confirms each before creating a todo. Use [ ] checkboxes.>
 
 ## Transcript
 
-<details>
-<summary>Full verbatim transcript (click to expand)</summary>
-
-```
-<paste the raw transcript here, unedited>
-```
-
-</details>
+Verbatim in [[raw/transcripts/<YYYY-MM-DD-slug>]] (same slug as this file; never edited after filing). Cite lines in the notes above as `[T:NN](../raw/transcripts/<YYYY-MM-DD-slug>.md#LNN)`.

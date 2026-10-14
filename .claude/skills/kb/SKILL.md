@@ -1,6 +1,6 @@
 ---
 name: kb
-description: "project-kb skill index and chooser. Use when unsure which KB skill applies. Returns a routing table of every project skill (/add-entry, /drop, /kb-process-inbox, /kb-audit, /kb-synthesize, /kb-archive, /kb-add-folder, /kb-promote, /add-todo, /complete-todo, /deadlines, /meeting, /finance, /financial-summary, /study, /study-status, /study-unstudied) with one-line purpose. Safe to invoke anytime. Invoke for queries like 'how do I add to the KB?', 'what KB skills are there?', 'I have something to save but not sure where', 'which skill should I use?'."
+description: "Chooser for the KB skills. Use when unsure which skill applies or the user asks: how do I add to the KB, what KB skills are there, where should this go."
 ---
 
 # /kb — Skill Chooser
@@ -9,9 +9,7 @@ Output the routing table below verbatim. Do not do anything else unless the user
 
 ## Available KB skills
 
-- **/add-entry** — add any typed content (source, comparison, decision, interview, advisor, team member, strategy, brainstorm, synthesis, research-dispatch, experiment, benchmark, traction snapshot)
-- **/drop** `<content|url>` — quick-capture to inbox without classifying
-- **/kb-process-inbox** — drain inbox; each drop processed by a fresh subagent (keeps main context clean)
+- **/add-entry** — add any typed content (source, comparison, decision, interview, advisor, team member, strategy, brainstorm, synthesis, research-dispatch, experiment, benchmark, traction snapshot). Also handles "save this for later": an unread URL is fetched and filed now
 - **/kb-audit** — freshness / consistency check: broken citations, stale drafts, oversized files, orphans, lint errors
 - **/kb-synthesize** `<product>` — roll up a new architecture snapshot for `track-a` | `track-b` | `shared`
 - **/kb-archive** `<path>` — move a superseded file to `archive/`
@@ -20,7 +18,7 @@ Output the routing table below verbatim. Do not do anything else unless the user
 - **/add-todo** — add a todo / event / meeting with deadline
 - **/complete-todo** `<slug>` — mark a todo complete; auto-appends Interactions entry to each related entity
 - **/deadlines** — list today-due + overdue-pending (subagent reads frontmatter only)
-- **/meeting** — save a meeting/call transcript → `meetings/` (digest + collapsed transcript), then extract action items / strategy insights / contacts / shared artifacts and propagate them to `todos/`/`strategy/`/`advisors/`/`raw/` (confirms each before writing)
+- **/meeting** — save a meeting or call: verbatim transcript → `raw/transcripts/`, line-linked notes → `meetings/`; propagates action items, outcomes and contacts after confirming each
 - **/finance** — ingest a transaction into `finances/ledger.csv` (verbal note, receipt image, or bank statement); parses, categorizes, dedup + reconciles, confirms before writing, redacts statements
 - **/financial-summary** `<period>` — generate a persisted, formatted cash-flow summary for a month/quarter/range → `finances/summaries/`. One-off lookups need no skill — just ask
 - **/study** `<source|concept|next>` — start or resume a deep-study session on a source or concept. Appends one H2 checkpoint at session end to `study-sessions/<source-filename>.md` or `concepts/<slug>/study-log.md`. `--mode text|voice`.

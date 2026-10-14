@@ -2,4 +2,6 @@
 
 # raw/transcripts/ — contents
 
-_(empty)_
+## Files
+
+- [2026-01-15-example-advisor-pricing.md](2026-01-15-example-advisor-pricing.md) — DEMO verbatim transcript for the example advisor pricing meeting; notes cite its lines. Delete once real.

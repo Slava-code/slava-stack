@@ -8,10 +8,10 @@ The scope of this KB is strategic and cross-cutting artifacts for the project �
 
 - **Line-by-line code or implementation detail.** Those live in your product source trees (e.g. `../your-product-repo/`). This KB references, it doesn't duplicate.
 - **Real-time metrics dashboards.** Traction snapshots are *dated point-in-time records*; live metrics belong in Grafana / Linear / whatever runtime tool you use.
-- **Raw transcripts, recordings, or screenshots.** Digest them to `sources/` or `discovery/`; don't commit multi-MB binary assets to git.
+- **Recordings, screenshots and multi-MB binaries.** Don't commit them. (Text transcripts and raw artifacts are a bounded carve-out; see § "Raw artifacts" below.)
 - **Legally-sensitive documents** (cap tables, shareholder agreements, NDAs, signed contracts). Wrong surface; keep those in a secure drive with proper access controls.
 - **HR / hiring / comp details** about specific individuals. If team processes require such notes, use a separate private system. `team/<person>/README` is for role/focus/public-facing context, not confidential details.
-- **Scratch notes that aren't worth version history.** Use ephemeral chat / notes apps. If a note turns out to matter, `/drop` it to `inbox/`.
+- **Scratch notes that aren't worth version history.** Use ephemeral chat / notes apps. If a note turns out to matter, add it with `/add-entry`.
 - **Running commentary / journal entries.** This isn't a diary. If an observation is worth keeping, it's a brainstorm, question, or decision.
 - **Duplicated content from sub-project docs.** The "cite, don't copy" principle is absolute. If it's authoritative in `../your-product-repo/docs/` or a sibling repo, link out.
 
@@ -27,24 +27,30 @@ The scope of this KB is strategic and cross-cutting artifacts for the project �
 
 ---
 
+## Raw artifacts — a bounded carve-out
+
+`raw/` holds primary artifacts the rest of the KB cites: verbatim meeting and session transcripts (`raw/transcripts/`, cited line by line from `meetings/` notes and never edited after filing), sent and received email threads (`raw/emails/`), deck PDFs with slide-by-slide sidecars (`raw/pitchdecks/`), event material, and renders of KB docs (`raw/renders/`). Each binary gets a same-name `.md` sidecar so it is searchable; transcripts and large machine dumps are excluded from default search via the repo's `.ignore`. Recordings and multi-MB binaries stay out.
+
+---
+
 ## Anti-patterns we won't enable
 
 - **Append-only mega-files.** We use dated folders with one-file-per-entry instead (`decisions/`, `questions/`, `traction/`).
-- **Line-range citations** (`[[foo#L42-58]]`). They rot silently. Use section anchors or quoted phrases.
+- **Line-range citations** (`[[foo#L42-58]]`). They rot silently. Use section anchors or quoted phrases. (Sole exception: `[T:NN]` links into never-edited transcripts — CONVENTIONS §"Citation discipline".)
 - **Rule duplication between skills and CONVENTIONS.** Skills reference the rulebook; the rulebook is the single source of truth.
 - **Flat INDEX.md that contains both rules and listing.** Rules live in `CONVENTIONS.md`, folder purpose in `<folder>/README.md`, entry listing in auto-generated `<folder>/INDEX.md`, routing in `AGENT-GUIDE.md`.
 - **Auto-summaries at end of every session.** Skills produce output by doing work; they don't narrate.
-- **Running two Chrome extension tasks in parallel.** Single session, single-writer rule.
+- **Running two browser-tool tasks in parallel, or letting a subagent drive a browser.** Single session, single-writer rule; subagents report "could not fetch".
 
 ---
 
 ## Known limits of this KB as a system
 
 - **Single-writer lock is local to the session filesystem.** Two users on two machines aren't synchronized by the lock; you'd need a remote mutex. Current assumption: one user at a time writing.
-- **Wikilinks are markdown, not enforced.** A typo in `[[comparisons/some-file]]` renders as broken link text; `/kb-audit` catches this, but it isn't caught at commit time by the current lint.
+- **Wikilinks are checked for existence, not meaning.** `kb-lint` rejects a `[[...]]` that does not resolve, but it cannot tell whether the link points at the right file.
 - **Frontmatter schema validates types and required fields, not semantic content.** "All synthesis docs have `## Counter-arguments` section" is a schema rule; "the counter-arguments are actually considered" is a human rule.
-- **Search is git + grep.** No embedding / semantic retrieval layer here. If you need that, layer it on top — the KB is a plain markdown tree.
-- **The KB doesn't auto-age content.** `/kb-audit` surfaces stale drafts; promotion / archival is still a human call.
+- **Search is lexical.** git + grep + `scripts/kb-prompt-lookup.py` (term and alias matching over frontmatter and text). No embedding / semantic retrieval layer here. If you need that, layer it on top — the KB is a plain markdown tree.
+- **The KB doesn't auto-age content.** `/kb-audit` and the session-start staleness report surface stale drafts and an out-of-date `STATE.md`; updating, promotion and archival are still a human call.
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: study
-description: "Start or resume a /study session on a source or concept in the project-kb. Source sessions deepen understanding of a specific paper/article/repo already digested in sources/; concept sessions tackle cross-cutting themes (example-concept-a, example-concept-b, etc.) as a folder under concepts/ with README (research digest) + study-log (append-only checkpoints). Writes one H2 checkpoint at session end — not mid-session. [?question] / [?decision] tags stay inline until user explicitly asks to promote. Bidirectional cross-refs when a session touches other sources/concepts. Respects the single-writer lock. Use when: user says 'study X', 'let's learn Y', 'start a study session on Z', 'continue studying W', 'study the concept of V', 'walk me through paper U'. Do NOT use for ambient KB Q&A — that's CLAUDE.md §'KB-first for named-entity queries' (no session needed). Do NOT use for brainstorming (use the brainstorm template via /add-entry). Do NOT use if the user wants to quickly capture something (/drop)."
+description: "Start or resume a study session on a digested source or a cross-cutting concept; appends one checkpoint at session end. Use when the user says: study X, walk me through paper Y, continue studying Z. Not for ordinary KB questions or brainstorming."
 ---
 
 # /study — Deep-study session on a source or concept

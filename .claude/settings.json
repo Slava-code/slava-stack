@@ -1,12 +1,47 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat \"$CLAUDE_PROJECT_DIR/SOUL.md\" 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/kb-session-status.py\" 2>/dev/null || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/kb-prompt-lookup.py\" --hook 2>/dev/null || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "WebFetch",
         "hooks": [
           {
             "type": "command",
-            "command": "jq '(.tool_input.url // \"\") as $url | ($url | ltrimstr(\"https://\") | ltrimstr(\"http://\") | split(\"/\")[0] | ltrimstr(\"www.\")) as $host | if ($host == \"x.com\" or $host == \"twitter.com\" or $host == \"linkedin.com\") then {hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"deny\",permissionDecisionReason:\"WebFetch cannot see login-walled content (x.com/twitter.com/linkedin.com). Use mcp__claude-in-chrome__* (Chrome extension) instead. Chrome ops count as writes -- acquire runs/.lock first, release after, never run two Chrome tasks in parallel. Full rule: AGENT-GUIDE.md section \\\"Login-walled content\\\"; lock rule: CLAUDE.md section \\\"Single-writer rule\\\".\"}} else empty end'"
+            "command": "jq '(.tool_input.url // \"\") as $url | ($url | ltrimstr(\"https://\") | ltrimstr(\"http://\") | split(\"/\")[0] | ltrimstr(\"www.\")) as $host | if ($host == \"x.com\" or $host == \"twitter.com\" or $host == \"linkedin.com\") then {hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"deny\",permissionDecisionReason:\"WebFetch cannot see login-walled content (x.com/twitter.com/linkedin.com). Main agent: use a logged-in browser tool (the one the user-level CLAUDE.md names, else mcp__claude-in-chrome__*); subagents: report could-not-fetch. Browser ops count as writes -- acquire runs/.lock first, release after, never two browser tasks in parallel. Full rule: AGENT-GUIDE.md section \\\"Login-walled content\\\".\"}} else empty end'"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq '(.tool_input.command // \"\") as $c | if ($c | test(\"(^|[;&|] *|npx +)(vercel|wrangler)( +[^;&|]*)? +(deploy|--prod)|(^|[;&|] *)npm +publish\")) and (($c | test(\"(^|[;&|] *)cd +[^;&|]+[;&]\")) | not) then {hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"deny\",permissionDecisionReason:\"Deploy/publish commands must never run from the knowledge-base directory (it would publish the whole KB as a site). cd into the target repo with an absolute path in the same command.\"}} else empty end'"
           }
         ]
       }

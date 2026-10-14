@@ -3,7 +3,7 @@
 kb-convergence-scan — tally convergence tags across brainstorming/.
 
 A brainstorm can declare `convergence: [tag1, tag2, ...]` in frontmatter when
-its processor notes "this is the Nth time X has surfaced." This script walks
+its author notes "this is the Nth time X has surfaced." This script walks
 brainstorming/, tallies tag occurrences, and flags any tag with
 >= CONVERGENCE_PROMOTION_THRESHOLD occurrences (default 3) as a promotion
 candidate — i.e. the pattern is real and deserves its own questions/ or

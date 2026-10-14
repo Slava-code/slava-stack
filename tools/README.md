@@ -17,7 +17,7 @@ Mirrors the `advisors/<slug>/` and `discovery/<firm>/` pattern. One entity = one
 - If we use it operationally (CLI, plugin, MCP server, GPT, web tool, reference doc we open repeatedly) → `tools/<slug>/`.
 - If it's external content we digest but don't operate (paper, article, op-ed, repo we studied but don't run) → `sources/`.
 
-**This is one of three folders written unprompted** (alongside `sources/` and `inbox/`). When the user shares a useful tool or URL, file it here without asking.
+**This is one of two folders written unprompted** (alongside `sources/`). When the user shares a useful tool or URL, file it here without asking.
 
 ## Slug rules
 
@@ -43,7 +43,6 @@ Mirrors the `advisors/<slug>/` and `discovery/<firm>/` pattern. One entity = one
 ## Separate from
 
 - `sources/` — academic-style factual digest of external content. If it's a paper/post/op-ed we studied (not a tool we use), it goes there.
-- `inbox/` — temporary triage queue. Tool entries live permanently in `tools/`.
 - `raw/` — founder-authored binaries (decks, recordings).
 - `brainstorming/` — opinion/analysis. If you're writing "here's what I think about this tool," that's a brainstorm; the tool itself stays factual in its `tools/<slug>/` folder.
 

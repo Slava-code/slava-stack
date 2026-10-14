@@ -14,6 +14,7 @@ status: reviewed
 redacted: false
 related:
   - "[[todos/2026-01-22-example-followup]]"
+  - "[[raw/transcripts/2026-01-15-example-advisor-pricing]]"
 tags: [demo, pricing]
 ---
 
@@ -23,17 +24,17 @@ tags: [demo, pricing]
 
 ## TL;DR
 
-- Advisor suggested leading positioning with the customer-pain story, not the feature list.
-- Open question on usage-based vs seat-based pricing — left undecided.
-- Offered an intro to a potential design partner (follow up within a week).
+- Advisor suggested leading positioning with the customer-pain story, not the feature list. [T:16](../raw/transcripts/2026-01-15-example-advisor-pricing.md#L16)
+- Open question on usage-based vs seat-based pricing — left undecided. [T:19](../raw/transcripts/2026-01-15-example-advisor-pricing.md#L19)
+- Offered an intro to a potential design partner (follow up within a week). [T:21](../raw/transcripts/2026-01-15-example-advisor-pricing.md#L21)
 
 ## Key points / advice
 
-Example Advisor noted that early demos land better when they open on the problem. (Attributed to the speaker — this is advice, not a committed plan.)
+Example Advisor noted that early demos land better when they open on the problem [T:17](../raw/transcripts/2026-01-15-example-advisor-pricing.md#L17). (Attributed to the speaker — this is advice, not a committed plan.)
 
 ## Action items
 
-- [ ] Send the one-pager to Example Advisor — a teammate — by next week.
+- [ ] Send the one-pager to Example Advisor — a teammate — by next week. [T:22](../raw/transcripts/2026-01-15-example-advisor-pricing.md#L22)
 
 ## Strategy / positioning notes
 
@@ -41,7 +42,7 @@ Possible reframing of the pitch around customer pain first. Still exploratory �
 
 ## Notable quotes
 
-> "Open on the problem, not the feature list."
+> "I'd open on the problem, not the feature list." [T:16](../raw/transcripts/2026-01-15-example-advisor-pricing.md#L16)
 
 ## Artifacts shared
 
@@ -53,11 +54,4 @@ _(none — demo)_
 
 ## Transcript
 
-<details>
-<summary>Full verbatim transcript (click to expand)</summary>
-
-```
-(Demo file — no transcript. A real /meeting entry pastes the full verbatim transcript here, unedited.)
-```
-
-</details>
+Verbatim in [[raw/transcripts/2026-01-15-example-advisor-pricing]] (DEMO). Claims above cite its lines as `[T:NN]`.

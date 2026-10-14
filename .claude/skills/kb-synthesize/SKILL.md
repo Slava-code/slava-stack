@@ -1,6 +1,6 @@
 ---
 name: kb-synthesize
-description: "Roll up a new architecture / state snapshot for a product track (track-a | track-b | shared). Reads all content committed for that product since the last synthesis. Writes a new dated file to synthesis/ with supersedes: pointing at the prior synthesis. Regenerator rebuilds synthesis/INDEX.md. Required anti-sycophancy sections (Counter-arguments, Data gaps) are non-negotiable. Use when user says: synthesize, snapshot architecture, roll up current state, refresh architecture doc, update track-a/track-b snapshot."
+description: "Write a new dated state snapshot for a product track (track-a, track-b, shared) from everything filed since the last one, and refresh STATE.md from it. Use when the user says: synthesize, snapshot, roll up current state, refresh the architecture doc."
 ---
 
 # /kb-synthesize <product>
@@ -13,7 +13,7 @@ This skill is a **drift detector**, not just a roll-up. It recency-weights recen
 
 2. **Baseline.** Most recent `synthesis/*.md` with matching `product:`. Its `date_found` is the baseline; note its `one_liner:` (the prior framing).
 
-3. **Collect the delta.** `git log --since="<baseline>" --name-only`, then keep every changed `*.md` whose frontmatter `product:` matches — **across ALL content folders, EXCLUDING only the operational ones**: `todos/ finances/ inbox/ runs/ raw/ archive/ schema/ scripts/ study-sessions/ team/ .claude/`. (Do NOT use a hardcoded include-list — that silently misses folders. In particular `discovery/` and `advisors/` carry customer-call + advisor-thread signal where positioning shifts surface; an include-list that omits them blinds the drift detector.) `team/` is excluded because it is operational by nature (person profiles, prefs, voice cards); strategic substance belongs in `brainstorming/`/`strategy/`/`decisions/` (which ARE scanned) — if it's sitting in `team/`, it's misfiled, promote it rather than tag it. Untagged files (no `product:`) are skipped — tag them if they should feed synthesis.
+3. **Collect the delta.** `git log --since="<baseline>" --name-only`, then keep every changed `*.md` whose frontmatter `product:` matches — **across ALL content folders, EXCLUDING only the operational ones**: `todos/ finances/ runs/ raw/ archive/ schema/ scripts/ study-sessions/ team/ .claude/`. (Do NOT use a hardcoded include-list — that silently misses folders. In particular `discovery/` and `advisors/` carry customer-call + advisor-thread signal where positioning shifts surface; an include-list that omits them blinds the drift detector.) `team/` is excluded because it is operational by nature (person profiles, prefs, voice cards); strategic substance belongs in `brainstorming/`/`strategy/`/`decisions/` (which ARE scanned) — if it's sitting in `team/`, it's misfiled, promote it rather than tag it. Untagged files (no `product:`) are skipped — tag them if they should feed synthesis.
 
 4. **No-delta short-circuit (the periodic-run path).** If the delta is empty or trivial (only typo/index commits), DO NOT create a new snapshot. Instead: bump `last_verified: <today>` on the existing synthesis, run `python3 scripts/propagate-oneliner.py` (re-assert the one-liner), stage `GLOSSARY.md` + the synthesis, commit `synthesis: verify <product> still-current @ <date>`, push, release lock, STOP. Report "still current as of <date>."
 
@@ -30,6 +30,8 @@ This skill is a **drift detector**, not just a roll-up. It recency-weights recen
 10. **Confidence-tiered T1 propagation:**
     - **High confidence AND no tension** → run `python3 scripts/propagate-oneliner.py` (writes the new one-liner into `GLOSSARY.md`). Stage `GLOSSARY.md`.
     - **Medium/low confidence OR unresolved tension** → DO NOT propagate. Write `runs/YYYY-MM-DD-<product>-drift.md`: `NEEDS HUMAN: framing in transition — <the tension>; proposed one-liner: <...>; not propagated to GLOSSARY pending confirmation.` Leave `GLOSSARY.md` untouched.
+
+10a. **Refresh `STATE.md` from the snapshot.** `STATE.md` is the always-loaded short form of the synthesis. Walk it section by section against the new snapshot and the delta; correct every line that moved, remove what is no longer true, set `as-of:` to today. Then list for the user every non-superseded `strategy/` and `brainstorming/` file older than the previous snapshot whose framing the new snapshot retires, and ask supersede-or-keep for each (stamp the ones they retire). Also list positions the snapshot treats as settled that have no `decisions/` file.
 
 11. **Regenerate INDEXes:** `python3 scripts/rebuild-indexes.py`. Stage changed `INDEX.md`.
 

@@ -4,6 +4,9 @@
 
 ## Subfolders
 
+- [emails/](emails/) — Verbatim external email threads (intros, scheduling, deal comms); primary artifact that entity files cite
 - [events/](events/) — Founder-authored event-planning binaries (budget frameworks, sponsor decks, run-of-show) + markdown sidecars
 - [papers/](papers/) — Original external paper PDFs preserved beside their KB source digests
-- [transcripts/](transcripts/) — Verbatim transcripts of founder brainstorms; primary artifact that digested brainstorming/ + strategy/ entries cite
+- [pitchdecks/](pitchdecks/) — Pitch deck PDFs + paired sidecars (slide-by-slide); current = newest sidecar without superseded_by.
+- [renders/](renders/) — HTML/PDF renders of KB docs (one-pagers, briefs, updates); each names its source .md; never the repo root
+- [transcripts/](transcripts/) — Verbatim transcripts of meetings, calls and founder brainstorms; primary artifact that notes cite by line

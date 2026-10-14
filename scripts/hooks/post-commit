@@ -6,8 +6,9 @@
 # upstream so agents + humans can't accumulate unpushed state through
 # forgetfulness or context drift.
 #
-# Installed via scripts/install-hooks.sh (copies into .git/hooks/).
-# git hooks are per-clone; re-run install-hooks.sh on every machine.
+# Enabled by scripts/install-hooks.sh, which points `core.hooksPath` at
+# scripts/hooks/. That git setting is per-clone; run install-hooks.sh once
+# in every fresh clone.
 
 set -u
 

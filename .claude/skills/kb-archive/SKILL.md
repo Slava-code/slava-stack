@@ -1,6 +1,6 @@
 ---
 name: kb-archive
-description: "Move a fully-superseded project-kb file to archive/. Preserves the original subfolder structure inside archive/ (so restoration is trivial). Regenerator automatically removes the entry from the source folder's INDEX.md. Enforces archive criteria from CONVENTIONS § \"Growth rules\" (supersedes + uncited past ARCHIVE_UNCITED_MONTHS + no active decision references). Use when: user says archive X, retire Y, clean up outdated content, this brainstorm is superseded."
+description: "Move a fully superseded KB file to archive/ and fix inbound links. Use when the user says: archive X, retire Y, clean up outdated content."
 ---
 
 # /kb-archive <path>

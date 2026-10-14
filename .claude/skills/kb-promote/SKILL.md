@@ -1,6 +1,6 @@
 ---
 name: kb-promote
-description: "Move project-kb content along the promotion path: questions/ → research-dispatches/ → decisions/ → synthesis/. Handles backlinks, supersedes frontmatter. Regenerator rebuilds folder INDEX.md files automatically. Use when: user says promote this question, elevate to dispatch, formalize as decision, roll this into synthesis. Source file's current folder determines the next step."
+description: "Move content along questions → research-dispatches → decisions → synthesis with backlinks and supersede stamps. Use when the user says: promote this question, formalize as a decision, make this a dispatch."
 ---
 
 # /kb-promote <source-path>

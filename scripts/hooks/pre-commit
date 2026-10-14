@@ -1,7 +1,8 @@
 #!/bin/bash
-# project-kb pre-commit hook — runs kb-lint.py on staged *.md files.
-# Installed from scripts/hooks/pre-commit into .git/hooks/pre-commit by
-# scripts/install-hooks.sh.
+# project-kb pre-commit hook — scans staged changes for secrets (gitleaks),
+# runs kb-lint.py on staged *.md files, and keeps INDEX.md files fresh.
+# Runs straight from scripts/hooks/ once scripts/install-hooks.sh has set
+# `core.hooksPath` (no copy into .git/hooks/, so it never goes stale).
 #
 # Note: git hooks run in a stripped env on macOS — `python3` may resolve to
 # /usr/bin/python3 (Apple's system Python, no PyYAML) even when your
@@ -12,6 +13,25 @@ set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
 staged_md=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.md$' || true)
+
+# Secret scan of the staged changes, before anything else. Rules live in
+# .gitleaks.toml (gitleaks' built-in ruleset plus a few generic extras).
+# Set KB_SKIP_GITLEAKS=1 to bypass on a machine without gitleaks (not advised).
+if [ "${KB_SKIP_GITLEAKS:-0}" != "1" ]; then
+    if ! command -v gitleaks >/dev/null 2>&1; then
+        cat >&2 <<EOF
+pre-commit: gitleaks is required to scan commits for secrets, but it is not installed.
+  Install:  brew install gitleaks   (or see https://github.com/gitleaks/gitleaks#installing)
+  Bypass once (not advised):  KB_SKIP_GITLEAKS=1 git commit ...
+EOF
+        exit 1
+    fi
+    (cd "$repo_root" && gitleaks git --staged --redact --no-banner) || {
+        echo "pre-commit: gitleaks found a possible secret in the staged changes; commit refused." >&2
+        echo "  Remove it (keep secrets out of the working tree), or allowlist a false positive in .gitleaks.toml." >&2
+        exit 1
+    }
+fi
 
 # no markdown changes → no lint work, but still verify index freshness below
 

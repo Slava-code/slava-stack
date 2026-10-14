@@ -2,4 +2,10 @@
 
 # todos/ — contents
 
-_(empty)_
+## Files
+
+- [2026-01-22-example-followup.md](2026-01-22-example-followup.md) — DEMO todo: send one-pager to Example Advisor after the pricing meeting. Delete once real.
+
+## Subfolders
+
+- [completed/](completed/) — Archive of completed todos — moved here from todos/ by /complete-todo

@@ -1,6 +1,6 @@
 ---
 name: deadlines
-description: "Surface today-due and overdue-pending todos in the project-kb. Dispatches a subagent to grep frontmatter only — never reads full todo bodies — keeping main context cheap. Returns a compact list. User-invoked (NOT auto on session start). Agent may auto-invoke if a task relates to deadlines. Use when user asks: what's due today, what's overdue, check deadlines, any stale todos."
+description: "List todos due today and overdue pending ones (frontmatter only, cheap). Use when the user asks: what's due, what's overdue, what do I have this week, check deadlines."
 ---
 
 # /deadlines

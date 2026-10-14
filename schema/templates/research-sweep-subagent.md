@@ -2,7 +2,7 @@
 
 **Purpose.** A reusable prompt skeleton for dispatching research-sweep subagents (e.g. "find recent papers on topic X"). Enforces the structure that prevents the round-up bias common to literature sweeps: surface / substrate / bearing decomposition per result, URL verification, and explicit dedupe against existing KB coverage.
 
-**When to use.** Any time the user asks for a literature sweep, competitor scan, or "what's new in X" open-ended search that will produce multiple inbox candidates. One subagent per topic area; parallelize across topics, not within.
+**When to use.** Any time the user asks for a literature sweep, competitor scan, or "what's new in X" open-ended search that will produce multiple KB-entry candidates. One subagent per topic area; parallelize across topics, not within.
 
 **When NOT to use.** Single-URL lookups, targeted fetches for a named paper, or anything where you already know what you're looking for — just fetch directly.
 
@@ -72,8 +72,8 @@ For each paper, emit exactly these fields:
 ## What to return
 
 Plain text list, roughly one ~12-line block per paper. Under ~{{N*150}} words
-total. Do NOT drop to inbox, do NOT write files, do NOT call /add-entry. The
-parent will dispatch /drop per paper after reviewing your list.
+total. Do NOT write files, do NOT call /add-entry. The parent will
+/add-entry each paper it keeps after reviewing your list.
 
 If you find fewer than {{N}} papers that survive the substrate check with
 non-trivial bearing, return fewer — do not pad. Honest "I found 4 strong + 2
@@ -92,7 +92,7 @@ surfaced it, and do not include it in the main list.
 
 **Result sizing.** `{{N}}=5-8` per subagent is a good target. Larger batches degrade quality — subagents pad.
 
-**Post-processing.** After collecting subagent results, dedupe across topic areas (same paper may surface under multiple topics). Then `/drop` each survivor as a separate inbox item with the full surface/substrate/bearing block as the drop body — so the `/kb-process-inbox` processor inherits the decomposition instead of having to redo it.
+**Post-processing.** After collecting subagent results, dedupe across topic areas (same paper may surface under multiple topics). Then `/add-entry` each survivor, carrying its surface/substrate/bearing block into the source entry so the decomposition is not redone.
 
 **Round-up bias.** This template codifies the fix for the round-up pattern that recurs in literature sweeps: surface similarity gets reported as actual bearing. If the pattern recurs despite the template, the template needs revising — fix it here.
 

@@ -1,6 +1,6 @@
 ---
 name: financial-summary
-description: "Generate an on-demand cash-flow summary from the project-kb ledger (finances/ledger.csv) for a given period, persisted to finances/summaries/. Computes total in/out/net, per-category breakdown, top counterparties, pending vs cleared, and notable items; format overridable per call (e.g. 'group by account', 'board format', 'just SaaS'). Use when user says: summarize finances for May, monthly cashflow summary, how did we do financially in Q2, generate a finance summary, spending breakdown for <period>. For one-off lookups ('how much on travel in May?') just read the ledger and answer in chat — no skill needed."
+description: "Write a persisted cash-flow summary for a period to finances/summaries/. Use when the user says: summarize finances for May, monthly cash flow, spending breakdown for a period. For a one-off lookup just read the ledger and answer."
 ---
 
 # /financial-summary

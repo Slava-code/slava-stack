@@ -15,3 +15,15 @@ SOUL.md
 # Per-team-member private content (resumes, gov-id docs, anything not for the repo)
 # Files are local-only, but agents reading the team profile can still grep them.
 team/*/private/
+
+# Claude Code per-machine settings (local permission allowlists, absolute paths, usernames)
+.claude/settings.local.json
+
+# Deploy-tool link state — the KB must never be deployed as a site (see the
+# deploy guard hook in .claude/settings.json).
+.vercel
+
+# Machine-local, non-versioned ops notes (per-host, any depth). Also covers
+# team/*/private/ above; that line stays for readability. Local-only; agents can
+# still grep them (.ignore re-includes private/ for the Grep tool).
+private/

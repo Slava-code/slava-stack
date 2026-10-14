@@ -117,7 +117,7 @@ A statement import reports three buckets back to you: **confirmed** (enriched), 
 This is real financial data in a private repo. Keep it private, and keep identifiers out.
 
 - **Accounts: last-4 or nickname only.** Never store full account, routing, or card numbers anywhere — ledger, statements, or notes.
-- **Bank statements: never commit the raw file.** Raw statements contain full account numbers and are large. `/finance` ingests a statement from a **local path you point it at**, parses + redacts **in memory**, and writes only a redacted snapshot CSV to `statements/` (last-4 kept, full numbers stripped). The raw never touches the repo. Do **not** route a raw statement through `/drop` (inbox is committed).
+- **Bank statements: never commit the raw file.** Raw statements contain full account numbers and are large. `/finance` ingests a statement from a **local path you point it at**, parses + redacts **in memory**, and writes only a redacted snapshot CSV to `statements/` (last-4 kept, full numbers stripped). The raw never touches the repo.
 - **Receipts: stored as-is** (they're designed to show only last-4). If a receipt ever exposes a full card number, flag it rather than committing — redact or skip the image and keep only the row.
 - Keep receipt images small. No multi-MB binaries (see `../LIMITS.md`).
 
